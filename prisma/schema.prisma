@@ -1,0 +1,280 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// PROPOS — Real Estate Agent SaaS Platform
+// Multi-tenant platform for real estate professionals
+// Trinidad & Tobago — Caribbean Edition
+// ═══════════════════════════════════════════════════════════════════════════
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PLATFORM CORE — Multi-tenant
+// ═══════════════════════════════════════════════════════════════════════════
+
+model PlatformOwner {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  passwordHash String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PlatformConfig {
+  id            String   @id @default(cuid())
+  key           String   @unique
+  value         String
+  updatedAt     DateTime @updatedAt
+}
+
+model Plan {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  price       Float    @default(0)
+  currency    String   @default("TTD")
+  interval    String   @default("monthly")
+  maxProperties Int    @default(10)
+  maxClients  Int      @default(50)
+  features    String   @default("[]")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  subscriptions Subscription[]
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// AGENT (Tenant)
+// ═══════════════════════════════════════════════════════════════════════════
+
+model Agent {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  slug            String   @unique
+  businessName    String
+  displayName     String
+  phone           String
+  email           String
+  logo            String?
+  heroImage       String?
+  primaryColor    String   @default("#1B4332")
+  accentColor     String   @default("#D4A373")
+  tagline         String?
+  bio             String?
+  address         String?
+  city            String   @default("Arima")
+  country         String   @default("TT")
+  website         String?
+  facebook        String?
+  instagram       String?
+  whatsapp        String?
+  commissionRate  Float    @default(5.0)
+  licenseNumber   String?
+  status          String   @default("active")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            PlatformUser? @relation(fields: [userId], references: [id])
+  properties      Property[]
+  clients         Client[]
+  deals           Deal[]
+  taxObligations  TaxObligation[]
+  subscriptions   Subscription[]
+  visitorEvents   VisitorEvent[]
+}
+
+model PlatformUser {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  passwordHash  String
+  role          String   @default("agent")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  agent         Agent?
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PROPERTIES (Agent Inventory)
+// ═══════════════════════════════════════════════════════════════════════════
+
+model Property {
+  id            String   @id @default(cuid())
+  agentId       String
+  title         String
+  slug          String
+  description   String?
+  propertyType  String   @default("residential")
+  listingType   String   @default("sale")
+  status        String   @default("available")
+  price         Float?
+  currency      String   @default("TTD")
+  bedrooms      Int?
+  bathrooms     Int?
+  areaSqm       Float?
+  lotSizeSqm    Float?
+  yearBuilt     Int?
+  address       String?
+  city          String?
+  neighborhood   String?
+  country       String   @default("TT")
+  lat           Float?
+  lng           Float?
+  features      String   @default("[]")
+  images        String   @default("[]")
+  isFeatured    Boolean  @default(false)
+  virtualTourUrl String?
+  videoUrl      String?
+  publishedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  agent         Agent    @relation(fields: [agentId], references: [id])
+  deals         Deal[]
+  inquiries     Inquiry[]
+
+  @@unique([agentId, slug])
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CLIENTS & LEADS
+// ═══════════════════════════════════════════════════════════════════════════
+
+model Client {
+  id            String   @id @default(cuid())
+  agentId       String
+  firstName     String
+  lastName      String
+  email         String?
+  phone         String?
+  source        String   @default("website")
+  budgetMin     Float?
+  budgetMax     Float?
+  preferredType String?
+  preferredCity String?
+  notes         String?
+  status        String   @default("active")
+  lastContactAt DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  agent         Agent    @relation(fields: [agentId], references: [id])
+  inquiries     Inquiry[]
+  deals         Deal[]
+}
+
+model Inquiry {
+  id            String   @id @default(cuid())
+  propertyId    String
+  clientId      String?
+  name          String
+  email         String
+  phone         String?
+  message       String?
+  source        String   @default("portal")
+  status        String   @default("new")
+  isRead        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  property      Property @relation(fields: [propertyId], references: [id])
+  client        Client?   @relation(fields: [clientId], references: [id])
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DEALS (Closed Transactions)
+// ═══════════════════════════════════════════════════════════════════════════
+
+model Deal {
+  id            String   @id @default(cuid())
+  agentId       String
+  propertyId    String?
+  clientId      String?
+  dealType      String   @default("sale")
+  status        String   @default("pending")
+  totalPrice    Float?
+  currency      String   @default("TTD")
+  commission    Float?
+  commissionRate Float?
+  closeDate     DateTime?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  agent         Agent    @relation(fields: [agentId], references: [id])
+  property      Property? @relation(fields: [propertyId], references: [id])
+  client        Client?   @relation(fields: [clientId], references: [id])
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TAX OBLIGATIONS
+// ═══════════════════════════════════════════════════════════════════════════
+
+model TaxObligation {
+  id            String   @id @default(cuid())
+  agentId       String
+  taxType       String
+  description   String
+  period        String?
+  dueDate       DateTime?
+  amount        Float
+  currency      String   @default("TTD")
+  status        String   @default("pending")
+  paidAt        DateTime?
+  receiptUrl    String?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  agent         Agent    @relation(fields: [agentId], references: [id])
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VISITOR ANALYTICS (Behavior Tracking)
+// ═══════════════════════════════════════════════════════════════════════════
+
+model VisitorEvent {
+  id            String   @id @default(cuid())
+  agentId       String
+  sessionId     String?
+  eventType     String
+  page          String?
+  elementId     String?
+  elementText   String?
+  propertySlug  String?
+  referrer      String?
+  userAgent     String?
+  ip            String?
+  country       String?
+  city          String?
+  dwellTimeMs   Int?
+  metadata      String   @default("{}")
+  createdAt     DateTime @default(now())
+
+  agent         Agent    @relation(fields: [agentId], references: [id])
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SUBSCRIPTIONS (Billing)
+// ═══════════════════════════════════════════════════════════════════════════
+
+model Subscription {
+  id            String   @id @default(cuid())
+  agentId       String
+  planId        String
+  status        String   @default("trial")
+  startsAt      DateTime @default(now())
+  endsAt        DateTime?
+  wipayReference String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  agent         Agent    @relation(fields: [agentId], references: [id])
+  plan          Plan     @relation(fields: [planId], references: [id])
+}
