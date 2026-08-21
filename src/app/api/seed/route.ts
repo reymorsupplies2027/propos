@@ -142,9 +142,17 @@ export async function POST() {
       });
     }
 
+    if (!lauraUser) {
+      return NextResponse.json({ error: 'No se pudo crear el usuario del agente' }, { status: 500 });
+    }
+
     const lauraAgent = await db.agent.findUnique({
-      where: { userId: lauraUser!.id },
-    })!;
+      where: { userId: lauraUser.id },
+    });
+
+    if (!lauraAgent) {
+      return NextResponse.json({ error: 'No se pudo crear el perfil del agente' }, { status: 500 });
+    }
 
     // ── Properties (6 varied types) ──────────────────────────────────────────
     const propertiesData = [
