@@ -1,15 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-geist-sans",
+const playfair = Playfair_Display({
+  variable: "--font-serif",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const inter = Inter({
+  variable: "--font-sans",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "PROPOS — Plataforma para Profesionales Inmobiliarios",
-  description: "SaaS multi-tenant para agentes inmobiliarios en Trinidad y el Caribe. Dashboard personal, analitica de visitantes, portal white-label y control de impuestos.",
+  title: "PROPOS — Premium Real Estate Platform",
+  description: "Elite SaaS platform for real estate professionals in Trinidad & the Caribbean. White-label portals, visitor analytics, CRM, and tax management.",
   manifest: "/manifest.json",
   icons: {
     icon: "/icon-192.png",
@@ -17,7 +24,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1B4332",
+  themeColor: "#0a0a0a",
   width: "device-width",
   initialScale: 1,
 };
@@ -28,8 +35,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" suppressHydrationWarning>
-      <body className={`${inter.variable} antialiased bg-background text-foreground`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${playfair.variable} ${inter.variable} antialiased`}>
         <script
           dangerouslySetInnerHTML={{
             __html: `

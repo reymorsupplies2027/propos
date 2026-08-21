@@ -2,11 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Building2, Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 interface LoginPageProps {
   onNavigate: (view: string) => void;
@@ -24,7 +20,6 @@ export default function LoginPage({ onNavigate, onLogin }: LoginPageProps) {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
@@ -32,12 +27,7 @@ export default function LoginPage({ onNavigate, onLogin }: LoginPageProps) {
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || 'Error signing in');
-        return;
-      }
-
+      if (!res.ok) { setError(data.error || 'Error signing in'); return; }
       onLogin(data.user);
     } catch {
       setError('Connection error. Please try again.');
@@ -47,105 +37,133 @@ export default function LoginPage({ onNavigate, onLogin }: LoginPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center p-4">
+    <div className="min-h-screen flex">
+      {/* ── Left: Visual Panel (60%) ─────────────────────── */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+        className="hidden lg:flex lg:w-[60%] relative bg-gradient-to-br from-stone-900 via-stone-800 to-stone-900 items-end p-16"
       >
-        <div className="text-center mb-8">
-          <div
-            className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#1B4332] to-[#2D6A4F] flex items-center justify-center mx-auto mb-4 cursor-pointer"
-            onClick={() => onNavigate('landing')}
-          >
-            <Building2 className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-[#1B4332]">PROPOS</h1>
-          <p className="text-[#6B7280] mt-1">Platform for real estate professionals</p>
+        {/* Subtle gold radial glow */}
+        <div className="absolute inset-0 opacity-30"
+          style={{ background: 'radial-gradient(ellipse at 30% 60%, rgba(184,149,106,0.3), transparent 70%)' }}
+        />
+        <div className="relative z-10 max-w-lg">
+          <p className="tracking-luxury text-[#b8956a] text-[10px] mb-4">PREMIUM REAL ESTATE PLATFORM</p>
+          <h2 className="font-serif-display text-4xl xl:text-5xl text-white/90 leading-tight mb-6">
+            Where Excellence Meets Opportunity
+          </h2>
+          <p className="text-white/40 font-data text-sm leading-relaxed max-w-md">
+            Trusted by elite agents across the Caribbean to manage listings, nurture clients, and close with confidence.
+          </p>
         </div>
-
-        <Card className="border-0 shadow-lg shadow-black/5">
-          <CardHeader className="text-center pb-2">
-            <CardTitle className="text-xl text-[#1a1a1a]">Sign In</CardTitle>
-            <CardDescription>Access your management dashboard</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                  {error}
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <Label htmlFor="email">Email address</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9A9A9A]" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9A9A9A]" />
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9A9A9A] hover:text-[#1a1a1a]"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-[#1B4332] hover:bg-[#2D6A4F] text-white h-12 text-base font-medium"
-              >
-                {loading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <>
-                    Sign In
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </>
-                )}
-              </Button>
-            </form>
-
-            <div className="mt-6 pt-6 border-t border-[#f0ece4] text-center">
-              <p className="text-sm text-[#6B7280]">
-                <button
-                  onClick={() => onNavigate('portal_laura')}
-                  className="text-[#D4A373] hover:underline font-medium"
-                >
-                  View example agent portal
-                </button>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
       </motion.div>
+
+      {/* ── Right: Login Form (40%) ──────────────────────── */}
+      <div className="w-full lg:w-[40%] flex items-center justify-center p-8 md:p-16 bg-[#FAFAF8]">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] as const }}
+          className="w-full max-w-sm"
+        >
+          {/* Logo */}
+          <div className="mb-12">
+            <button
+              onClick={() => onNavigate('landing')}
+              className="font-serif-display text-2xl tracking-luxury text-[#0a0a0a] hover:text-[#b8956a] transition-colors duration-300"
+            >
+              PROPOS
+            </button>
+          </div>
+
+          {/* Heading */}
+          <p className="tracking-wide-luxury text-[10px] text-[#b8956a] mb-3">SIGN IN</p>
+          <h1 className="font-serif-display text-3xl text-[#0a0a0a] mb-2">Welcome Back</h1>
+          <p className="font-data text-sm text-[#71717a] mb-10">
+            Access your management dashboard
+          </p>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="bg-red-50/80 backdrop-blur-sm text-red-700 px-4 py-3 text-xs font-data"
+              >
+                {error}
+              </motion.div>
+            )}
+
+            {/* Email */}
+            <div>
+              <label className="block tracking-wide-luxury text-[9px] text-[#71717a] mb-2">
+                EMAIL ADDRESS
+              </label>
+              <input
+                type="email"
+                placeholder="you@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-transparent border-b border-[rgba(0,0,0,0.12)] focus:border-[#0a0a0a] outline-none py-3 font-data text-sm text-[#0a0a0a] placeholder:text-[#71717a]/50 transition-colors duration-300"
+                required
+              />
+            </div>
+
+            {/* Password */}
+            <div>
+              <label className="block tracking-wide-luxury text-[9px] text-[#71717a] mb-2">
+                PASSWORD
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-transparent border-b border-[rgba(0,0,0,0.12)] focus:border-[#0a0a0a] outline-none py-3 font-data text-sm text-[#0a0a0a] placeholder:text-[#71717a]/50 transition-colors duration-300 pr-10"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 text-[#71717a] hover:text-[#0a0a0a] transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary-luxury w-full flex items-center justify-center gap-3 mt-8 disabled:opacity-50"
+            >
+              {loading ? (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  Sign In
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Bottom link */}
+          <div className="mt-12 pt-8 border-t border-[rgba(0,0,0,0.06)]">
+            <button
+              onClick={() => onNavigate('portal_laura')}
+              className="font-data text-xs text-[#71717a] hover:text-[#b8956a] transition-colors duration-300"
+            >
+              View example agent portal &rarr;
+            </button>
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 }

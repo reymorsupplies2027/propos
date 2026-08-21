@@ -1,64 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { toast } from 'sonner';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import {
-  Building2,
-  Home,
-  Users,
-  DollarSign,
-  Search,
-  MapPin,
-  Phone,
-  Mail,
-  Globe,
-  Heart,
-  Share2,
-  Bed,
-  Bath,
-  Maximize,
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-  Menu,
-  X,
-  Facebook,
-  Instagram,
-  MessageCircle,
-  ArrowRight,
-  Star,
-  Check,
-  Eye,
+  MapPin, Phone, Mail, Bed, Bath, Maximize, Calendar,
+  ChevronLeft, ChevronRight, Menu, X, Facebook,
+  Instagram, MessageCircle, Play, ArrowRight, PlayCircle,
+  Home, Building2, LandPlot, Store, ArrowUpRight,
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
-import { cn } from '@/lib/utils';
 
 // ── Types ──────────────────────────────────────────────────────
 interface PublicPortalProps {
@@ -67,9 +16,8 @@ interface PublicPortalProps {
 }
 
 interface AgentData {
-  id: string;
   businessName: string;
-  displayName: string;
+  name: string;
   tagline: string | null;
   bio: string | null;
   phone: string | null;
@@ -84,7 +32,7 @@ interface AgentData {
   city: string | null;
   country: string | null;
   propertyCount: number;
-  tratosCerrados: number;
+  dealsClosed: number;
 }
 
 interface PropertyData {
@@ -117,309 +65,281 @@ interface PropertyData {
 }
 
 interface PaginationData {
-  pagina: number;
-  limite: number;
+  page: number;
+  limit: number;
   total: number;
-  totalPaginas: number;
-}
-
-interface Filters {
-  search: string;
-  propertyType: string;
-  listingType: string;
-  bedrooms: string;
-  priceRange: string;
+  totalPages: number;
 }
 
 // ── Helpers ────────────────────────────────────────────────────
 function formatPrice(amount: number, currency: string = 'TTD'): string {
-  return `$${amount.toLocaleString('en-TT')} ${currency}`;
+  return `$${amount.toLocaleString('en-US')} ${currency}`;
 }
 
-// ── Animation variants ─────────────────────────────────────────
-const fadeInUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 },
+function statusColor(status: string) {
+  switch (status) {
+    case 'available': return 'bg-emerald-500/90';
+    case 'pending': return 'bg-amber-500/90';
+    case 'sold': return 'bg-red-500/90';
+    default: return 'bg-zinc-500/90';
+  }
+}
+
+function propertyTypeIcon(type: string) {
+  switch (type) {
+    case 'Apartment': return <Building2 size={14} />;
+    case 'Townhouse': return <Home size={14} />;
+    case 'Commercial': return <Store size={14} />;
+    case 'Land': return <LandPlot size={14} />;
+    default: return <Home size={14} />;
+  }
+}
+
+// ── Animation ──────────────────────────────────────────────────
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const } },
 };
 
-const fadeIn = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
+const stagger = {
+  visible: { transition: { staggerChildren: 0.12 } },
 };
 
-// ── Custom scrollbar styles ────────────────────────────────────
-const scrollbarStyles = `
-  .portal-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-  .portal-scroll::-webkit-scrollbar-track { background: transparent; }
-  .portal-scroll::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
-  .portal-scroll::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
-`;
+function SectionReveal({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-80px' });
+  return (
+    <motion.div
+      ref={ref}
+      initial="hidden"
+      animate={inView ? 'visible' : 'hidden'}
+      variants={fadeUp}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
-// ── Component ──────────────────────────────────────────────────
+// ── Property Card ──────────────────────────────────────────────
+function PropertyCard({ property, onClick }: { property: PropertyData; onClick: () => void }) {
+  return (
+    <motion.article
+      variants={fadeUp}
+      className="group cursor-pointer"
+      onClick={onClick}
+    >
+      <div className="relative overflow-hidden aspect-[4/3] bg-stone-900">
+        <div className="absolute inset-0 bg-gradient-to-br from-stone-800 via-stone-900 to-neutral-950" />
+        {property.images?.[0] && (
+          <img
+            src={property.images[0]}
+            alt={property.title}
+            className="absolute inset-0 w-full h-full object-cover img-premium"
+          />
+        )}
+        {/* Status Badge */}
+        <div className="absolute top-3 right-3 z-10">
+          <span className={`glass-subtle px-2.5 py-1 text-[10px] font-data tracking-wide-luxury font-medium text-white ${statusColor(property.status)}`}>
+            {property.status}
+          </span>
+        </div>
+        {/* Hover overlay */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-500 z-[5]">
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            <span className="glass-dark px-6 py-2.5 text-[11px] font-data tracking-wide-luxury text-white">
+              VIEW DETAILS
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="pt-4">
+        <h3 className="font-serif-display text-lg leading-tight text-[#0a0a0a] group-hover:text-[#b8956a] transition-colors duration-300">
+          {property.title}
+        </h3>
+        <p className="font-data text-xl font-medium mt-1 text-[#0a0a0a]">
+          {formatPrice(property.price, property.currency)}
+        </p>
+        <p className="font-data text-sm text-[#71717a] mt-1 flex items-center gap-1">
+          <MapPin size={12} />
+          {[property.neighborhood, property.city, property.country].filter(Boolean).join(', ')}
+        </p>
+        <div className="flex items-center gap-4 mt-3 text-[#71717a] font-data text-xs tracking-wide">
+          {property.bedrooms != null && (
+            <span className="flex items-center gap-1"><Bed size={13} /> {property.bedrooms} Beds</span>
+          )}
+          {property.bathrooms != null && (
+            <span className="flex items-center gap-1"><Bath size={13} /> {property.bathrooms} Baths</span>
+          )}
+          {property.areaSqm != null && (
+            <span className="flex items-center gap-1"><Maximize size={13} /> {property.areaSqm.toLocaleString()} sqft</span>
+          )}
+        </div>
+      </div>
+    </motion.article>
+  );
+}
+
+// ── Main Component ─────────────────────────────────────────────
 export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
-  // State
+  // ── State ──────────────────────────────────────────────────
   const [agent, setAgent] = useState<AgentData | null>(null);
   const [properties, setProperties] = useState<PropertyData[]>([]);
   const [featuredProperties, setFeaturedProperties] = useState<PropertyData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [propertiesLoading, setPropertiesLoading] = useState(true);
+  const [propsLoading, setPropsLoading] = useState(true);
   const [pagination, setPagination] = useState<PaginationData | null>(null);
-  const [filters, setFilters] = useState<Filters>({
-    search: '',
-    propertyType: '',
-    listingType: '',
-    bedrooms: '',
-    priceRange: '',
-  });
   const [currentPage, setCurrentPage] = useState(1);
+  const [filterType, setFilterType] = useState('');
+  const [filterListing, setFilterListing] = useState('');
+  const [filterBedrooms, setFilterBedrooms] = useState('');
+  const [filterPrice, setFilterPrice] = useState('');
   const [sessionId, setSessionId] = useState('');
+  const [navScrolled, setNavScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [selectedProperty, setSelectedProperty] = useState<PropertyData | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
-  const [inquiryProperty, setInquiryProperty] = useState<PropertyData | null>(null);
-  const [inquiryOpen, setInquiryOpen] = useState(false);
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
-  const [inquiryForm, setInquiryForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: '',
-  });
+  const [selectedProperty, setSelectedProperty] = useState<PropertyData | null>(null);
+  const [detailImageIndex, setDetailImageIndex] = useState(0);
+  const [inquiryForm, setInquiryForm] = useState({ name: '', email: '', phone: '', message: '' });
   const [submitting, setSubmitting] = useState(false);
-  const [heroSearch, setHeroSearch] = useState('');
-  const [heroListingType, setHeroListingType] = useState('');
+  const [inquirySent, setInquirySent] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
 
-  const dwellIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const dwellStartRef = useRef<number>(Date.now());
+  const propertiesSectionRef = useRef<HTMLDivElement>(null);
+  const aboutSectionRef = useRef<HTMLDivElement>(null);
+  const contactSectionRef = useRef<HTMLDivElement>(null);
 
-  // ── Tracking ─────────────────────────────────────────────────
-  const track = useCallback(
-    (eventType: string, extra?: { elementId?: string; elementText?: string; propertySlug?: string; page?: string }) => {
-      const payload = {
+  // ── Tracking ────────────────────────────────────────────────
+  const track = useCallback((
+    eventType: string,
+    extra?: { elementText?: string; propertySlug?: string; page?: string },
+  ) => {
+    if (!sessionId) return;
+    fetch('/api/portal/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         agentSlug,
         eventType,
-        page: extra?.page || 'portal',
         sessionId,
-        referrer: typeof document !== 'undefined' ? document.referrer : '',
+        referrer: typeof document !== 'undefined' ? document.referrer : null,
         ...extra,
-      };
-      if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
-        navigator.sendBeacon(
-          '/api/portal/track',
-          new Blob([JSON.stringify(payload)], { type: 'application/json' })
-        );
-      } else {
-        fetch('/api/portal/track', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        }).catch(() => {});
-      }
-    },
-    [agentSlug, sessionId]
-  );
+      }),
+    }).catch(() => {});
+  }, [agentSlug, sessionId]);
 
-  // ── Fetch agent ──────────────────────────────────────────────
+  // ── Session Init ────────────────────────────────────────────
   useEffect(() => {
-    async function fetchAgent() {
+    let sid = sessionStorage.getItem(`portal_sid_${agentSlug}`);
+    if (!sid) {
+      sid = crypto.randomUUID();
+      sessionStorage.setItem(`portal_sid_${agentSlug}`, sid);
+    }
+    setSessionId(sid);
+  }, [agentSlug]);
+
+  // ── Fetch Agent ─────────────────────────────────────────────
+  useEffect(() => {
+    (async () => {
       try {
         const res = await fetch(`/api/portal/agent?slug=${encodeURIComponent(agentSlug)}`);
         if (!res.ok) return;
         const data = await res.json();
-        const a = data.agente;
-        setAgent({
-          id: a.nombreComercial || '',
-          businessName: a.nombreComercial || '',
-          displayName: a.nombre || '',
-          tagline: a.eslogan || null,
-          bio: a.biografia || null,
-          phone: a.telefono || null,
-          whatsapp: a.whatsapp || null,
-          email: a.correo || null,
-          facebook: a.facebook || null,
-          instagram: a.instagram || null,
-          logo: a.logo || null,
-          heroImage: a.imagenPortada || null,
-          primaryColor: a.colorPrimario || '#2D6A4F',
-          accentColor: a.colorAcento || '#D4A373',
-          city: a.ciudad || null,
-          country: a.pais || null,
-          propertyCount: a.cantidadPropiedades || 0,
-          tratosCerrados: a.tratosCerrados || 0,
-        });
-      } catch (err) {
-        console.error('Error fetching agent:', err);
-      } finally {
+        setAgent(data.agent);
+      } catch { /* silent */ } finally {
         setLoading(false);
       }
-    }
-    fetchAgent();
+    })();
   }, [agentSlug]);
 
-  // ── Session ID ───────────────────────────────────────────────
-  useEffect(() => {
-    let sid = '';
-    if (typeof sessionStorage !== 'undefined') {
-      sid = sessionStorage.getItem('portal_session_id') || '';
-      if (!sid) {
-        sid = `vis_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
-        sessionStorage.setItem('portal_session_id', sid);
-      }
-    }
-    setSessionId(sid);
-  }, []);
-
-  // ── Track page_view on mount ──────────────────────────────────
-  useEffect(() => {
-    if (sessionId) {
-      track('page_view', { page: 'portal' });
-    }
-  }, [sessionId, track]);
-
-  // ── Dwell time tracking ──────────────────────────────────────
-  useEffect(() => {
-    dwellStartRef.current = Date.now();
-    dwellIntervalRef.current = setInterval(() => {
-      const elapsed = Date.now() - dwellStartRef.current;
-      if (sessionId) {
-        track('dwell_time_ms', { page: 'portal' });
-        // We send dwell_time_ms as part of metadata-like approach
-        if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
-          navigator.sendBeacon(
-            '/api/portal/track',
-            new Blob(
-              [JSON.stringify({ agentSlug, eventType: 'dwell_time_ms', sessionId, page: 'portal', dwellTimeMs: elapsed, referrer: typeof document !== 'undefined' ? document.referrer : '' })],
-              { type: 'application/json' }
-            )
-          );
-        }
-      }
-    }, 5000);
-    return () => {
-      if (dwellIntervalRef.current) clearInterval(dwellIntervalRef.current);
-    };
-  }, [agentSlug, sessionId, track]);
-
-  // ── Fetch properties ─────────────────────────────────────────
-  const fetchProperties = useCallback(
-    async (page = 1, overrideFilters?: Partial<Filters>) => {
-      setPropertiesLoading(true);
-      try {
-        const f = { ...filters, ...overrideFilters };
-        const params = new URLSearchParams({
-          agent: agentSlug,
-          status: 'available',
-          page: page.toString(),
-          limit: '12',
-        });
-        if (f.search) params.set('search', f.search);
-        if (f.propertyType) params.set('type', f.propertyType);
-        if (f.listingType) params.set('listingType', f.listingType);
-        if (f.bedrooms) params.set('bedrooms', f.bedrooms);
-        if (f.priceRange) {
-          if (f.priceRange === '500000') params.set('maxPrice', '500000');
-          else if (f.priceRange === '1000000') params.set('maxPrice', '1000000');
-          else if (f.priceRange === '2000000') params.set('maxPrice', '2000000');
-          else if (f.priceRange === '2000001') params.set('minPrice', '2000001');
-        }
-
-        const res = await fetch(`/api/portal/properties?${params.toString()}`);
-        if (!res.ok) return;
-        const data = await res.json();
-        setProperties(data.propiedades || []);
-        setPagination(data.paginacion || null);
-      } catch (err) {
-        console.error('Error fetching properties:', err);
-      } finally {
-        setPropertiesLoading(false);
-      }
-    },
-    [agentSlug, filters]
-  );
-
-  // ── Fetch featured ───────────────────────────────────────────
-  const fetchFeatured = useCallback(async () => {
+  // ── Fetch Properties ────────────────────────────────────────
+  const fetchProperties = useCallback(async (page: number, filters: {
+    type?: string; listing?: string; bedrooms?: string; price?: string;
+  } = {}) => {
+    setPropsLoading(true);
     try {
-      const params = new URLSearchParams({
-        agent: agentSlug,
-        status: 'available',
-        page: '1',
-        limit: '6',
-      });
+      const params = new URLSearchParams({ agent: agentSlug, page: String(page), limit: '12' });
+      if (filters.type) params.set('type', filters.type);
+      if (filters.listing) params.set('listingType', filters.listing);
+      if (filters.bedrooms) params.set('bedrooms', filters.bedrooms);
+      if (filters.price) {
+        const [min, max] = filters.price.split('-');
+        if (min) params.set('minPrice', min);
+        if (max) params.set('maxPrice', max);
+      }
       const res = await fetch(`/api/portal/properties?${params.toString()}`);
       if (!res.ok) return;
       const data = await res.json();
-      const featured = (data.propiedades || []).filter((p: PropertyData) => p.isFeatured);
-      setFeaturedProperties(featured);
-    } catch (err) {
-      console.error('Error fetching featured:', err);
+      setProperties(data.properties);
+      setPagination(data.pagination);
+      // Separate featured from first fetch
+      if (page === 1 && !filters.type && !filters.listing) {
+        setFeaturedProperties(data.properties.filter((p: PropertyData) => p.isFeatured).slice(0, 3));
+      }
+    } catch { /* silent */ } finally {
+      setPropsLoading(false);
     }
   }, [agentSlug]);
 
   useEffect(() => {
     fetchProperties(1);
-    fetchFeatured();
-  }, [fetchProperties, fetchFeatured]);
-
-  // ── Filter change handler ────────────────────────────────────
-  const handleFilterChange = useCallback(
-    (key: keyof Filters, value: string) => {
-      const newFilters = { ...filters, [key]: value };
-      setFilters(newFilters);
-      setCurrentPage(1);
-      fetchProperties(1, newFilters);
-    },
-    [filters, fetchProperties]
-  );
-
-  // ── Reset filters ────────────────────────────────────────────
-  const resetFilters = useCallback(() => {
-    const empty: Filters = { search: '', propertyType: '', listingType: '', bedrooms: '', priceRange: '' };
-    setFilters(empty);
-    setCurrentPage(1);
-    fetchProperties(1, empty);
   }, [fetchProperties]);
 
-  // ── Hero search ──────────────────────────────────────────────
-  const handleHeroSearch = useCallback(() => {
-    const newFilters = { ...filters, search: heroSearch, listingType: heroListingType };
-    setFilters(newFilters);
-    setCurrentPage(1);
-    fetchProperties(1, newFilters);
-    track('search', { elementId: 'hero_search', elementText: heroSearch });
-    setTimeout(() => {
-      document.getElementById('propiedades-section')?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
-  }, [heroSearch, heroListingType, filters, fetchProperties, track]);
+  // ── Track page view ─────────────────────────────────────────
+  useEffect(() => {
+    if (sessionId) track('page_view', { page: 'portal_home' });
+  }, [sessionId, track]);
 
-  // ── Open detail ──────────────────────────────────────────────
-  const openDetail = useCallback(
-    (property: PropertyData) => {
-      setSelectedProperty(property);
-      setDetailOpen(true);
-      track('property_view', { propertySlug: property.slug, elementId: `property_${property.slug}`, elementText: property.title });
-    },
-    [track]
-  );
+  // ── Nav scroll ──────────────────────────────────────────────
+  useEffect(() => {
+    const onScroll = () => setNavScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
-  // ── Open inquiry ─────────────────────────────────────────────
-  const openInquiry = useCallback(
-    (property: PropertyData) => {
-      setInquiryProperty(property);
-      setInquiryForm({ name: '', email: '', phone: '', message: '' });
-      setInquiryOpen(true);
-      track('inquiry_start', { propertySlug: property.slug, elementId: `inquiry_${property.slug}`, elementText: property.title });
-    },
-    [track]
-  );
+  // ── Scroll spy ──────────────────────────────────────────────
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        }
+      },
+      { threshold: 0.3 },
+    );
+    const refs = [
+      { el: document.getElementById('section-home'), id: 'home' },
+      { el: propertiesSectionRef.current, id: 'properties' },
+      { el: aboutSectionRef.current, id: 'about' },
+      { el: contactSectionRef.current, id: 'contact' },
+    ];
+    refs.forEach((r) => { if (r.el) observer.observe(r.el); });
+    return () => observer.disconnect();
+  }, [loading]);
 
-  // ── Submit inquiry ───────────────────────────────────────────
+  // ── Filter Handlers ─────────────────────────────────────────
+  const applyFilters = useCallback((page = 1) => {
+    fetchProperties(page, { type: filterType, listing: filterListing, bedrooms: filterBedrooms, price: filterPrice });
+    setCurrentPage(page);
+  }, [fetchProperties, filterType, filterListing, filterBedrooms, filterPrice]);
+
+  useEffect(() => { applyFilters(1); }, [filterType, filterListing, filterBedrooms, filterPrice, applyFilters]);
+
+  // ── Open Detail ─────────────────────────────────────────────
+  const openDetail = useCallback((property: PropertyData) => {
+    setSelectedProperty(property);
+    setDetailImageIndex(0);
+    setInquirySent(false);
+    setInquiryForm({ name: '', email: '', phone: '', message: '' });
+    setDetailOpen(true);
+    track('property_view', { propertySlug: property.slug });
+  }, [track]);
+
+  // ── Submit Inquiry ──────────────────────────────────────────
   const submitInquiry = useCallback(async () => {
-    if (!inquiryProperty) return;
-    if (!inquiryForm.name.trim() || !inquiryForm.email.trim()) {
-      toast.error('Please enter your name and email address.');
-      return;
-    }
+    if (!selectedProperty || !inquiryForm.name.trim() || !inquiryForm.email.trim()) return;
     setSubmitting(true);
     try {
       const res = await fetch('/api/portal/inquiry', {
@@ -427,68 +347,36 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           agentSlug,
-          propertyId: inquiryProperty.id,
+          propertyId: selectedProperty.id,
           name: inquiryForm.name,
           email: inquiryForm.email,
           phone: inquiryForm.phone,
           message: inquiryForm.message,
         }),
       });
-      if (!res.ok) {
-        throw new Error('Error sending inquiry');
+      if (res.ok) {
+        setInquirySent(true);
+        track('click', { elementText: 'inquiry_submitted', propertySlug: selectedProperty.slug });
       }
-      toast.success('Your inquiry has been sent successfully! We will get in touch soon.');
-      setInquiryOpen(false);
-      track('inquiry_submit', { propertySlug: inquiryProperty.slug, elementId: `inquiry_submit_${inquiryProperty.slug}` });
-    } catch (err) {
-      toast.error('There was an error sending your inquiry. Please try again.');
-    } finally {
+    } catch { /* silent */ } finally {
       setSubmitting(false);
     }
-  }, [inquiryProperty, inquiryForm, agentSlug, track]);
+  }, [agentSlug, selectedProperty, inquiryForm, track]);
 
-  // ── Toggle favorite ──────────────────────────────────────────
-  const toggleFavorite = useCallback(
-    (propertyId: string, propertySlug: string, propertyTitle: string) => {
-      setFavorites((prev) => {
-        const next = new Set(prev);
-        if (next.has(propertyId)) next.delete(propertyId);
-        else next.add(propertyId);
-        return next;
-      });
-      track('favorite_toggle', { propertySlug, elementId: `fav_${propertySlug}`, elementText: propertyTitle });
-    },
-    [track]
-  );
+  // ── Scroll To ───────────────────────────────────────────────
+  const scrollTo = (id: string) => {
+    setMobileMenuOpen(false);
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
 
-  // ── Scroll to section ────────────────────────────────────────
-  const scrollToSection = useCallback(
-    (sectionId: string, label: string) => {
-      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
-      setMobileMenuOpen(false);
-      track('nav_click', { elementId: `nav_${sectionId}`, elementText: label });
-    },
-    [track]
-  );
-
-  // ── Pagination ───────────────────────────────────────────────
-  const goToPage = useCallback(
-    (page: number) => {
-      setCurrentPage(page);
-      fetchProperties(page);
-      document.getElementById('propiedades-section')?.scrollIntoView({ behavior: 'smooth' });
-    },
-    [fetchProperties]
-  );
-
-  // ── Loading state ────────────────────────────────────────────
+  // ── Loading State ───────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center">
-          <Skeleton className="w-16 h-16 rounded-2xl mx-auto mb-4" />
-          <Skeleton className="w-48 h-6 mx-auto mb-2" />
-          <Skeleton className="w-32 h-4 mx-auto" />
+      <div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-2 border-[#b8956a] border-t-transparent animate-spin rounded-full" />
+          <p className="font-data text-xs tracking-wide-luxury text-[#71717a]">LOADING</p>
         </div>
       </div>
     );
@@ -496,882 +384,132 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
 
   if (!agent) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center">
         <div className="text-center">
-          <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 text-lg">Agent not found</p>
+          <h1 className="font-serif-display text-3xl text-[#0a0a0a]">Agent Not Found</h1>
+          <p className="font-data text-sm text-[#71717a] mt-3">This portal could not be located.</p>
           {onBack && (
-            <Button variant="outline" className="mt-4" onClick={onBack}>
-              <ArrowRight className="w-4 h-4 mr-2 rotate-180" />
-              Go Back
-            </Button>
+            <button onClick={onBack} className="btn-outline-luxury mt-6">GO BACK</button>
           )}
         </div>
       </div>
     );
   }
 
-  const primaryColor = agent.primaryColor || '#2D6A4F';
-  const accentColor = agent.accentColor || '#D4A373';
+  // ── Property type filter options ────────────────────────────
+  const propertyTypes = ['All', 'House', 'Apartment', 'Townhouse', 'Commercial', 'Land'];
+  const listingTypes = ['For Sale', 'For Rent'];
+  const bedroomOptions = ['Any', '1+', '2+', '3+', '4+', '5+'];
+  const priceOptions = ['Any', '0-500000', '500000-1000000', '1000000-2000000', '2000000-5000000', '5000000-999999999'];
 
+  // ═══════════════════════════════════════════════════════════════
+  // RENDER
+  // ═══════════════════════════════════════════════════════════════
   return (
-    <div className="min-h-screen flex flex-col bg-white" style={scrollbarStyles as React.CSSProperties}>
-      <style>{scrollbarStyles}</style>
-
-      {/* ── Navigation Bar ─────────────────────────────────────── */}
+    <div className="min-h-screen bg-[#FAFAF8] text-[#0a0a0a]">
+      {/* ── NAVIGATION ──────────────────────────────────────── */}
       <nav
-        className="sticky top-0 z-40 bg-white border-b shadow-sm"
-        style={{ borderColor: `${primaryColor}15` }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          navScrolled ? 'glass shadow-soft' : 'bg-transparent'
+        }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Left: Brand */}
-            <div className="flex items-center gap-3">
-              {agent.logo ? (
-                <img src={agent.logo} alt={agent.businessName} className="h-8 object-contain" />
-              ) : (
-                <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm"
-                  style={{ backgroundColor: primaryColor }}
-                >
-                  {agent.businessName.charAt(0).toUpperCase()}
-                </div>
-              )}
-              <span className="font-bold text-lg hidden sm:block" style={{ color: primaryColor }}>
+        <div className="container-luxury flex items-center justify-between h-16">
+          {/* Logo / Business Name */}
+          <button onClick={() => scrollTo('section-home')} className="flex-shrink-0">
+            {agent.logo ? (
+              <img src={agent.logo} alt={agent.businessName} className="h-8 w-auto" />
+            ) : (
+              <span className={`font-serif-display text-lg ${navScrolled ? 'text-[#0a0a0a]' : 'text-white'} transition-colors duration-500`}>
                 {agent.businessName}
               </span>
-            </div>
+            )}
+          </button>
 
-            {/* Center: Nav links (desktop) */}
-            <div className="hidden md:flex items-center gap-8">
-              <button
-                onClick={() => scrollToSection('hero-section', 'Home')}
-                className="text-sm font-medium hover:opacity-80 transition-opacity"
-                style={{ color: primaryColor }}
-              >
-                Home
-              </button>
-              <button
-                onClick={() => scrollToSection('propiedades-section', 'Properties')}
-                className="text-sm font-medium hover:opacity-80 transition-opacity"
-                style={{ color: primaryColor }}
-              >
-                Properties
-              </button>
-              <button
-                onClick={() => scrollToSection('contacto-section', 'Contact')}
-                className="text-sm font-medium hover:opacity-80 transition-opacity"
-                style={{ color: primaryColor }}
-              >
-                Contact
-              </button>
-            </div>
-
-            {/* Right: Phone + WhatsApp + Hamburger */}
-            <div className="flex items-center gap-3">
-              {agent.phone && (
-                <a
-                  href={`tel:${agent.phone}`}
-                  className="hidden sm:flex items-center gap-1.5 text-sm font-medium hover:opacity-80 transition-opacity"
-                  style={{ color: primaryColor }}
-                  onClick={() => track('phone_click', { elementId: 'nav_phone', elementText: agent.phone! })}
+          {/* Center Nav Links — Desktop */}
+          <div className="hidden md:flex items-center gap-8">
+            {['Home', 'Properties', 'About', 'Contact'].map((item) => {
+              const sectionId = item === 'Home' ? 'section-home' : `section-${item.toLowerCase()}`;
+              const isActive = activeSection === (item === 'Home' ? 'home' : item.toLowerCase());
+              return (
+                <button
+                  key={item}
+                  onClick={() => scrollTo(sectionId)}
+                  className={`font-data text-[11px] tracking-wide-luxury transition-colors duration-300 pb-0.5 border-b ${
+                    isActive
+                      ? `${navScrolled ? 'border-[#0a0a0a] text-[#0a0a0a]' : 'border-white text-white'}`
+                      : `${navScrolled ? 'border-transparent text-[#71717a] hover:text-[#0a0a0a]' : 'border-transparent text-white/60 hover:text-white'}`
+                  }`}
                 >
-                  <Phone className="w-4 h-4" />
-                  {agent.phone}
-                </a>
-              )}
-              {agent.whatsapp && (
-                <a
-                  href={`https://wa.me/${agent.whatsapp.replace(/[^0-9]/g, '')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-full bg-green-500 text-white flex items-center justify-center hover:bg-green-600 transition-colors"
-                  onClick={() => track('whatsapp_click', { elementId: 'nav_whatsapp', elementText: 'WhatsApp' })}
-                >
-                  <MessageCircle className="w-4 h-4" />
-                </a>
-              )}
-              {/* Mobile hamburger */}
-              <button
-                className="md:hidden w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors"
-                style={{ color: primaryColor }}
-                onClick={() => setMobileMenuOpen(true)}
-              >
-                <Menu className="w-5 h-5" />
-              </button>
-            </div>
+                  {item}
+                </button>
+              );
+            })}
           </div>
-        </div>
-      </nav>
 
-      {/* ── Mobile Menu Sheet ──────────────────────────────────── */}
-      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-        <SheetContent side="right" className="w-72">
-          <SheetHeader>
-            <SheetTitle style={{ color: primaryColor }}>{agent.businessName}</SheetTitle>
-          </SheetHeader>
-          <div className="flex flex-col gap-2 mt-4">
-            <button
-              onClick={() => scrollToSection('hero-section', 'Home')}
-              className="text-left px-4 py-3 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
-              style={{ color: primaryColor }}
-            >
-              Home
-            </button>
-            <button
-              onClick={() => scrollToSection('propiedades-section', 'Properties')}
-              className="text-left px-4 py-3 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
-              style={{ color: primaryColor }}
-            >
-              Properties
-            </button>
-            <button
-              onClick={() => scrollToSection('contacto-section', 'Contact')}
-              className="text-left px-4 py-3 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
-              style={{ color: primaryColor }}
-            >
-              Contact
-            </button>
-            <Separator className="my-2" />
+          {/* Right — Phone + WhatsApp — Desktop */}
+          <div className="hidden md:flex items-center gap-5">
             {agent.phone && (
               <a
                 href={`tel:${agent.phone}`}
-                className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm hover:bg-gray-50 transition-colors"
-                style={{ color: primaryColor }}
+                className={`font-data text-xs tracking-wide transition-colors duration-300 ${
+                  navScrolled ? 'text-[#0a0a0a]' : 'text-white'
+                }`}
               >
-                <Phone className="w-4 h-4" />
                 {agent.phone}
               </a>
             )}
-            {agent.email && (
+            {agent.whatsapp && (
               <a
-                href={`mailto:${agent.email}`}
-                className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm hover:bg-gray-50 transition-colors"
-                style={{ color: primaryColor }}
+                href={`https://wa.me/${agent.whatsapp.replace(/[^0-9]/g, '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`transition-colors duration-300 ${
+                  navScrolled ? 'text-[#0a0a0a]' : 'text-white'
+                }`}
+                aria-label="WhatsApp"
               >
-                <Mail className="w-4 h-4" />
-                {agent.email}
+                <MessageCircle size={16} />
               </a>
             )}
           </div>
-        </SheetContent>
-      </Sheet>
 
-      {/* ── Hero Section ───────────────────────────────────────── */}
-      <section
-        id="hero-section"
-        className="relative w-full"
-        style={{ backgroundColor: primaryColor }}
-      >
-        {/* Gradient overlay */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: `linear-gradient(135deg, ${primaryColor}ee 0%, ${primaryColor}cc 50%, ${accentColor}88 100%)`,
-          }}
-        />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-28">
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={fadeInUp}
-            transition={{ duration: 0.6 }}
-            className="text-center"
+          {/* Mobile Hamburger */}
+          <button
+            className={`md:hidden ${navScrolled ? 'text-[#0a0a0a]' : 'text-white'}`}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Menu"
           >
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
-              {agent.tagline || agent.businessName}
-            </h1>
-            {agent.bio && (
-              <p className="text-white/80 text-base sm:text-lg max-w-2xl mx-auto mb-8">
-                {agent.bio.length > 150 ? agent.bio.substring(0, 150) + '...' : agent.bio}
-              </p>
-            )}
-
-            {/* Search bar */}
-            <div className="max-w-2xl mx-auto mb-8">
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <Input
-                    placeholder="Search by name, city..."
-                    className="pl-10 h-12 bg-white rounded-lg text-base"
-                    value={heroSearch}
-                    onChange={(e) => setHeroSearch(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleHeroSearch()}
-                  />
-                </div>
-                <Select value={heroListingType} onValueChange={setHeroListingType}>
-                  <SelectTrigger className="h-12 w-full sm:w-40 bg-white rounded-lg">
-                    <SelectValue placeholder="Type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">All</SelectItem>
-                    <SelectItem value="sale">For Sale</SelectItem>
-                    <SelectItem value="rent">For Rent</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button
-                  onClick={handleHeroSearch}
-                  className="h-12 px-8 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity"
-                  style={{ backgroundColor: accentColor }}
-                >
-                  <Search className="w-4 h-4 mr-2" />
-                  Search
-                </Button>
-              </div>
-            </div>
-
-            {/* Stats row */}
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={fadeIn}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-white/90"
-            >
-              <div className="flex items-center gap-2">
-                <Building2 className="w-5 h-5" />
-                <span className="text-sm sm:text-base font-medium">{agent.propertyCount} Properties</span>
-              </div>
-              <span className="hidden sm:inline text-white/50">•</span>
-              <div className="flex items-center gap-2">
-                <Check className="w-5 h-5" />
-                <span className="text-sm sm:text-base font-medium">{agent.tratosCerrados} Deals Closed</span>
-              </div>
-              <span className="hidden sm:inline text-white/50">•</span>
-              <div className="flex items-center gap-2">
-                <MapPin className="w-5 h-5" />
-                <span className="text-sm sm:text-base font-medium">
-                  {[agent.city, agent.country].filter(Boolean).join(', ') || 'Trinidad y Tobago'}
-                </span>
-              </div>
-            </motion.div>
-          </motion.div>
+            {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
-      </section>
 
-      {/* ── Featured Properties ────────────────────────────────── */}
-      {featuredProperties.length > 0 && (
-        <section className="py-12 sm:py-16 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
             <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-50px' }}
-              variants={fadeInUp}
-              transition={{ duration: 0.5 }}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden glass overflow-hidden"
             >
-              <h2 className="text-2xl sm:text-3xl font-bold mb-8" style={{ color: primaryColor }}>
-                Featured Properties
-              </h2>
-            </motion.div>
-
-            {/* Horizontal scroll */}
-            <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory portal-scroll">
-              {featuredProperties.map((property) => (
-                <motion.div
-                  key={property.id}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                  variants={fadeInUp}
-                  transition={{ duration: 0.4 }}
-                  className="flex-none w-72 sm:w-80 snap-start"
-                >
-                  <Card
-                    className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow group"
-                    onClick={() => openDetail(property)}
-                  >
-                    {/* Image placeholder */}
-                    <div
-                      className="relative h-48 flex items-center justify-center"
-                      style={{
-                        background: `linear-gradient(135deg, ${primaryColor}22, ${accentColor}22)`,
-                      }}
+              <div className="container-luxury py-6 flex flex-col gap-4">
+                {['Home', 'Properties', 'About', 'Contact'].map((item) => {
+                  const sectionId = item === 'Home' ? 'section-home' : `section-${item.toLowerCase()}`;
+                  return (
+                    <button
+                      key={item}
+                      onClick={() => scrollTo(sectionId)}
+                      className="font-data text-xs tracking-wide-luxury text-[#0a0a0a] text-left py-1"
                     >
-                      <Home className="w-12 h-12" style={{ color: `${primaryColor}40` }} />
-                      {property.isFeatured && (
-                        <div className="absolute top-2 right-2">
-                          <Badge className="bg-yellow-400 text-yellow-900 text-xs font-semibold">
-                            <Star className="w-3 h-3 mr-1" />
-Featured
-                          </Badge>
-                        </div>
-                      )}
-                      <Badge
-                        className="absolute top-2 left-2 text-xs"
-                        style={{
-                          backgroundColor: property.listingType === 'sale' ? primaryColor : accentColor,
-                          color: 'white',
-                        }}
-                      >
-                        {property.listingType === 'sale' ? 'For Sale' : 'For Rent'}
-                      </Badge>
-                    </div>
-                    <CardContent className="p-4">
-                      <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1 group-hover:underline">
-                        {property.title}
-                      </h3>
-                      <div className="flex items-center gap-1 text-gray-500 text-sm mb-3">
-                        <MapPin className="w-3.5 h-3.5" />
-                        {[property.city, property.neighborhood].filter(Boolean).join(', ')}
-                      </div>
-                      <p className="font-bold text-lg mb-3" style={{ color: primaryColor }}>
-                        {formatPrice(property.price, property.currency)}
-                      </p>
-                      <div className="flex items-center gap-3 text-gray-500 text-sm mb-3">
-                        {property.bedrooms != null && (
-                          <span className="flex items-center gap-1">
-                            <Bed className="w-4 h-4" /> {property.bedrooms}
-                          </span>
-                        )}
-                        {property.bathrooms != null && (
-                          <span className="flex items-center gap-1">
-                            <Bath className="w-4 h-4" /> {property.bathrooms}
-                          </span>
-                        )}
-                        {property.areaSqm != null && (
-                          <span className="flex items-center gap-1">
-                            <Maximize className="w-4 h-4" /> {property.areaSqm} m²
-                          </span>
-                        )}
-                      </div>
-                      <Button
-                        className="w-full text-white text-sm"
-                        style={{ backgroundColor: primaryColor }}
-                      >
-                        View Details
-                        <ArrowRight className="w-4 h-4 ml-1" />
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ── All Properties Section ─────────────────────────────── */}
-      <section id="propiedades-section" className="py-12 sm:py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
-            variants={fadeInUp}
-            transition={{ duration: 0.5 }}
-          >
-            <h2 className="text-2xl sm:text-3xl font-bold mb-8" style={{ color: primaryColor }}>
-              Our Properties
-            </h2>
-          </motion.div>
-
-          {/* Filter bar */}
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeIn}
-            transition={{ duration: 0.4 }}
-            className="mb-8 p-4 bg-gray-50 rounded-xl border border-gray-100"
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-              {/* Search */}
-              <div className="relative lg:col-span-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input
-                  placeholder="Search..."
-                  className="pl-9 h-10 bg-white"
-                  value={filters.search}
-                  onChange={(e) => handleFilterChange('search', e.target.value)}
-                />
-              </div>
-              {/* Property Type */}
-              <Select
-                value={filters.propertyType}
-                onValueChange={(v) => handleFilterChange('propertyType', v === '__all__' ? '' : v)}
-              >
-                <SelectTrigger className="h-10 w-full bg-white">
-                  <SelectValue placeholder="Property Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__all__">All</SelectItem>
-                  <SelectItem value="residential">Residential</SelectItem>
-                  <SelectItem value="commercial">Commercial</SelectItem>
-                  <SelectItem value="land">Land</SelectItem>
-                </SelectContent>
-              </Select>
-              {/* Listing Type */}
-              <Select
-                value={filters.listingType}
-                onValueChange={(v) => handleFilterChange('listingType', v === '__all__' ? '' : v)}
-              >
-                <SelectTrigger className="h-10 w-full bg-white">
-                  <SelectValue placeholder="For Sale / For Rent" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__all__">All</SelectItem>
-                  <SelectItem value="sale">For Sale</SelectItem>
-                  <SelectItem value="rent">For Rent</SelectItem>
-                </SelectContent>
-              </Select>
-              {/* Bedrooms */}
-              <Select
-                value={filters.bedrooms}
-                onValueChange={(v) => handleFilterChange('bedrooms', v === '__all__' ? '' : v)}
-              >
-                <SelectTrigger className="h-10 w-full bg-white">
-                  <SelectValue placeholder="Bedrooms" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__all__">All</SelectItem>
-                  <SelectItem value="1">1+</SelectItem>
-                  <SelectItem value="2">2+</SelectItem>
-                  <SelectItem value="3">3+</SelectItem>
-                  <SelectItem value="4">4+</SelectItem>
-                </SelectContent>
-              </Select>
-              {/* Price Range */}
-              <Select
-                value={filters.priceRange}
-                onValueChange={(v) => handleFilterChange('priceRange', v === '__all__' ? '' : v)}
-              >
-                <SelectTrigger className="h-10 w-full bg-white">
-                  <SelectValue placeholder="Price Range" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__all__">All</SelectItem>
-                  <SelectItem value="500000">Up to $500k</SelectItem>
-                  <SelectItem value="1000000">Up to $1M</SelectItem>
-                  <SelectItem value="2000000">Up to $2M</SelectItem>
-                  <SelectItem value="2000001">Over $2M</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </motion.div>
-
-          {/* Properties grid */}
-          {propertiesLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <Card key={i} className="overflow-hidden">
-                  <Skeleton className="h-48 w-full" />
-                  <CardContent className="p-4 space-y-3">
-                    <Skeleton className="h-5 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                    <Skeleton className="h-6 w-2/3" />
-                    <div className="flex gap-3">
-                      <Skeleton className="h-4 w-12" />
-                      <Skeleton className="h-4 w-12" />
-                      <Skeleton className="h-4 w-16" />
-                    </div>
-                    <Skeleton className="h-9 w-full rounded-md" />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : properties.length === 0 ? (
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={fadeIn}
-              className="text-center py-16"
-            >
-              <Home className="w-16 h-16 text-gray-200 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-600 mb-2">
-                No properties found with these filters
-              </h3>
-              <p className="text-gray-400 mb-6">
-                Try adjusting the filters to see more results.
-              </p>
-              <Button
-                variant="outline"
-                onClick={resetFilters}
-                style={{ borderColor: primaryColor, color: primaryColor }}
-              >
-                Clear Filters
-              </Button>
-            </motion.div>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {properties.map((property, index) => (
-                  <motion.div
-                    key={property.id}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: '-30px' }}
-                    variants={fadeInUp}
-                    transition={{ duration: 0.4, delay: Math.min(index * 0.05, 0.2) }}
-                  >
-                    <Card className="overflow-hidden hover:shadow-lg transition-shadow group h-full flex flex-col">
-                      {/* Image area */}
-                      <div
-                        className="relative h-48 flex items-center justify-center cursor-pointer"
-                        style={{
-                          background: `linear-gradient(135deg, ${primaryColor}18, ${accentColor}18)`,
-                        }}
-                        onClick={() => openDetail(property)}
-                      >
-                        <Home className="w-12 h-12" style={{ color: `${primaryColor}30` }} />
-
-                        {/* Status badge */}
-                        <Badge
-                          className={cn(
-                            'absolute top-2 left-2 text-xs font-medium text-white',
-                            property.status === 'available'
-                              ? 'bg-green-500'
-                              : 'bg-yellow-500'
-                          )}
-                        >
-                          {property.status === 'available' ? 'Available' : 'Pending'}
-                        </Badge>
-
-                        {/* Listing type badge */}
-                        <Badge
-                          className="absolute top-2 right-2 text-xs text-white"
-                          style={{
-                            backgroundColor: property.listingType === 'sale' ? primaryColor : accentColor,
-                          }}
-                        >
-                          {property.listingType === 'sale' ? 'For Sale' : 'For Rent'}
-                        </Badge>
-
-                        {/* Featured star */}
-                        {property.isFeatured && (
-                          <div className="absolute bottom-2 left-2">
-                            <div className="w-7 h-7 rounded-full bg-yellow-400 flex items-center justify-center">
-                              <Star className="w-3.5 h-3.5 text-yellow-900" fill="currentColor" />
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Favorite button */}
-                        <button
-                          className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleFavorite(property.id, property.slug, property.title);
-                          }}
-                        >
-                          <Heart
-                            className={cn(
-                              'w-4 h-4 transition-colors',
-                              favorites.has(property.id) ? 'fill-red-500 text-red-500' : 'text-gray-500'
-                            )}
-                          />
-                        </button>
-                      </div>
-
-                      <CardContent className="p-4 flex flex-col flex-1">
-                        <h3
-                          className="font-semibold text-gray-900 mb-1 line-clamp-1 cursor-pointer hover:underline"
-                          onClick={() => openDetail(property)}
-                        >
-                          {property.title}
-                        </h3>
-                        <div className="flex items-center gap-1 text-gray-500 text-sm mb-2">
-                          <MapPin className="w-3.5 h-3.5 flex-none" />
-                          <span className="line-clamp-1">
-                            {[property.city, property.neighborhood].filter(Boolean).join(', ')}
-                          </span>
-                        </div>
-                        <p className="font-bold text-lg mb-3" style={{ color: primaryColor }}>
-                          {formatPrice(property.price, property.currency)}
-                        </p>
-                        <div className="flex items-center gap-4 text-gray-500 text-sm mb-4">
-                          {property.bedrooms != null && (
-                            <span className="flex items-center gap-1">
-                              <Bed className="w-4 h-4" /> {property.bedrooms}
-                            </span>
-                          )}
-                          {property.bathrooms != null && (
-                            <span className="flex items-center gap-1">
-                              <Bath className="w-4 h-4" /> {property.bathrooms}
-                            </span>
-                          )}
-                          {property.areaSqm != null && (
-                            <span className="flex items-center gap-1">
-                              <Maximize className="w-4 h-4" /> {property.areaSqm} m²
-                            </span>
-                          )}
-                        </div>
-                        <div className="mt-auto flex gap-2">
-                          <Button
-                            className="flex-1 text-white text-sm h-9"
-                            style={{ backgroundColor: primaryColor }}
-                            onClick={() => openDetail(property)}
-                          >
-                            <Eye className="w-4 h-4 mr-1" />
-                            View Details
-                          </Button>
-                          <Button
-                            variant="outline"
-                            className="text-sm h-9"
-                            style={{ borderColor: accentColor, color: accentColor }}
-                            onClick={() => openInquiry(property)}
-                          >
-                            <Mail className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* Pagination */}
-              {pagination && pagination.totalPaginas > 1 && (
-                <div className="flex items-center justify-center gap-2 mt-10">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={currentPage <= 1}
-                    onClick={() => goToPage(currentPage - 1)}
-                    style={{ borderColor: primaryColor, color: currentPage <= 1 ? undefined : primaryColor }}
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </Button>
-                  {Array.from({ length: pagination.totalPaginas }, (_, i) => i + 1)
-                    .filter((p) => {
-                      if (pagination.totalPaginas <= 7) return true;
-                      if (p === 1 || p === pagination.totalPaginas) return true;
-                      if (Math.abs(p - currentPage) <= 1) return true;
-                      return false;
-                    })
-                    .map((p, idx, arr) => {
-                      const prev = arr[idx - 1];
-                      const showEllipsis = prev != null && p - prev > 1;
-                      return (
-                        <span key={p} className="flex items-center gap-1">
-                          {showEllipsis && <span className="px-1 text-gray-400">...</span>}
-                          <Button
-                            variant={p === currentPage ? 'default' : 'outline'}
-                            size="sm"
-                            className="w-9 h-9"
-                            style={
-                              p === currentPage
-                                ? { backgroundColor: primaryColor, color: 'white' }
-                                : { borderColor: primaryColor, color: primaryColor }
-                            }
-                            onClick={() => goToPage(p)}
-                          >
-                            {p}
-                          </Button>
-                        </span>
-                      );
-                    })}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={currentPage >= pagination.totalPaginas}
-                    onClick={() => goToPage(currentPage + 1)}
-                    style={{ borderColor: primaryColor, color: currentPage >= pagination.totalPaginas ? undefined : primaryColor }}
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </section>
-
-      {/* ── Property Detail Dialog ─────────────────────────────── */}
-      <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-        <DialogContent
-          className="max-w-3xl w-full max-h-[90vh] overflow-y-auto portal-scroll sm:rounded-xl"
-          style={{
-            maxWidth: '100vw',
-            marginLeft: '0',
-            marginTop: '5vh',
-            height: '90vh',
-          }}
-        >
-          {selectedProperty && (
-            <>
-              {/* Image area */}
-              <div
-                className="relative h-56 sm:h-72 -mx-6 -mt-6 mb-4 flex items-center justify-center"
-                style={{
-                  background: `linear-gradient(135deg, ${primaryColor}25, ${accentColor}25)`,
-                }}
-              >
-                <Home className="w-16 h-16" style={{ color: `${primaryColor}35` }} />
-                <div className="absolute top-4 left-4 flex gap-2">
-                  <Badge
-                    className={cn(
-                      'text-white text-sm',
-                      selectedProperty.status === 'available' ? 'bg-green-500' : 'bg-yellow-500'
-                    )}
-                  >
-                    {selectedProperty.status === 'available' ? 'Available' : 'Pending'}
-                  </Badge>
-                  <Badge
-                    className="text-white text-sm"
-                    style={{
-                      backgroundColor: selectedProperty.listingType === 'sale' ? primaryColor : accentColor,
-                    }}
-                  >
-                    {selectedProperty.listingType === 'sale' ? 'For Sale' : 'For Rent'}
-                  </Badge>
-                  <Badge className="bg-gray-100 text-gray-700 text-sm">
-                    {selectedProperty.propertyType === 'residential'
-                      ? 'Residential'
-                      : selectedProperty.propertyType === 'commercial'
-                        ? 'Commercial'
-                        : selectedProperty.propertyType === 'land'
-                          ? 'Land'
-                          : selectedProperty.propertyType}
-                  </Badge>
-                </div>
-                {selectedProperty.isFeatured && (
-                  <div className="absolute top-4 right-4">
-                    <Badge className="bg-yellow-400 text-yellow-900 text-sm font-semibold">
-                      <Star className="w-3.5 h-3.5 mr-1" fill="currentColor" />
-                      Featured
-                    </Badge>
-                  </div>
-                )}
-              </div>
-
-              <DialogHeader>
-                <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900">
-                  {selectedProperty.title}
-                </DialogTitle>
-              </DialogHeader>
-
-              {/* Location */}
-              <div className="flex items-center gap-1.5 text-gray-500 text-sm">
-                <MapPin className="w-4 h-4" />
-                {[selectedProperty.city, selectedProperty.neighborhood, selectedProperty.address]
-                  .filter(Boolean)
-                  .join(', ')}
-              </div>
-
-              {/* Price */}
-              <p className="text-2xl font-bold" style={{ color: primaryColor }}>
-                {formatPrice(selectedProperty.price, selectedProperty.currency)}
-              </p>
-
-              <Separator />
-
-              {/* Description */}
-              {selectedProperty.description && (
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Description</h4>
-                  <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
-                    {selectedProperty.description}
-                  </p>
-                </div>
-              )}
-
-              {/* Features grid */}
-              <div>
-                <h4 className="font-semibold text-gray-900 mb-3">Features</h4>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {selectedProperty.bedrooms != null && (
-                    <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-                      <Bed className="w-5 h-5" style={{ color: primaryColor }} />
-                      <div>
-                        <p className="text-xs text-gray-500">Bedrooms</p>
-                        <p className="font-semibold text-gray-900">{selectedProperty.bedrooms}</p>
-                      </div>
-                    </div>
-                  )}
-                  {selectedProperty.bathrooms != null && (
-                    <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-                      <Bath className="w-5 h-5" style={{ color: primaryColor }} />
-                      <div>
-                        <p className="text-xs text-gray-500">Bathrooms</p>
-                        <p className="font-semibold text-gray-900">{selectedProperty.bathrooms}</p>
-                      </div>
-                    </div>
-                  )}
-                  {selectedProperty.areaSqm != null && (
-                    <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-                      <Maximize className="w-5 h-5" style={{ color: primaryColor }} />
-                      <div>
-                        <p className="text-xs text-gray-500">Area</p>
-                        <p className="font-semibold text-gray-900">{selectedProperty.areaSqm} m²</p>
-                      </div>
-                    </div>
-                  )}
-                  {selectedProperty.lotSizeSqm != null && (
-                    <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-                      <Globe className="w-5 h-5" style={{ color: primaryColor }} />
-                      <div>
-                        <p className="text-xs text-gray-500">Lot Size</p>
-                        <p className="font-semibold text-gray-900">{selectedProperty.lotSizeSqm} m²</p>
-                      </div>
-                    </div>
-                  )}
-                  {selectedProperty.yearBuilt != null && (
-                    <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-                      <Calendar className="w-5 h-5" style={{ color: primaryColor }} />
-                      <div>
-                        <p className="text-xs text-gray-500">Year Built</p>
-                        <p className="font-semibold text-gray-900">{selectedProperty.yearBuilt}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Features list from JSON */}
-              {selectedProperty.features && selectedProperty.features.length > 0 && (
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Amenities & Extras</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedProperty.features.map((feature, i) => (
-                      <Badge key={i} variant="secondary" className="text-sm">
-                        <Check className="w-3 h-3 mr-1" style={{ color: primaryColor }} />
-                        {feature}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <Separator />
-
-              {/* Agent contact card */}
-              <div className="p-4 bg-gray-50 rounded-xl">
-                <h4 className="font-semibold text-gray-900 mb-3">Contact Agent</h4>
-                <div className="flex items-center gap-3 mb-3">
-                  <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold"
-                    style={{ backgroundColor: primaryColor }}
-                  >
-                    {agent.businessName.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">{agent.businessName}</p>
-                    <p className="text-sm text-gray-500">
-                      {[agent.city, agent.country].filter(Boolean).join(', ')}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-2">
+                      {item}
+                    </button>
+                  );
+                })}
+                <div className="divider-luxury my-2" />
+                <div className="flex items-center gap-4">
                   {agent.phone && (
-                    <a
-                      href={`tel:${agent.phone}`}
-                      className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-lg border text-sm hover:bg-gray-50 transition-colors"
-                      style={{ borderColor: primaryColor, color: primaryColor }}
-                    >
-                      <Phone className="w-4 h-4" />
-                      Call
-                    </a>
-                  )}
-                  {agent.email && (
-                    <a
-                      href={`mailto:${agent.email}`}
-                      className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-lg border text-sm hover:bg-gray-50 transition-colors"
-                      style={{ borderColor: primaryColor, color: primaryColor }}
-                    >
-                      <Mail className="w-4 h-4" />
-                      Email
+                    <a href={`tel:${agent.phone}`} className="font-data text-sm text-[#0a0a0a]">
+                      <Phone size={14} className="inline mr-1.5" />{agent.phone}
                     </a>
                   )}
                   {agent.whatsapp && (
@@ -1379,372 +517,646 @@ Featured
                       href={`https://wa.me/${agent.whatsapp.replace(/[^0-9]/g, '')}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-4 py-2.5 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 transition-colors"
+                      className="text-[#b8956a]"
+                      aria-label="WhatsApp"
                     >
-                      <MessageCircle className="w-4 h-4" />
-                      WhatsApp
+                      <MessageCircle size={16} />
                     </a>
                   )}
                 </div>
               </div>
-
-              {/* Inquiry form in dialog */}
-              <div className="p-4 rounded-xl border" style={{ borderColor: `${primaryColor}20` }}>
-                <h4 className="font-semibold text-gray-900 mb-4">Interested in this property?</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-                  <div>
-                    <Label htmlFor="detail-name" className="text-sm text-gray-600">Name *</Label>
-                    <Input
-                      id="detail-name"
-                      placeholder="Your name"
-                      className="mt-1"
-                      value={inquiryForm.name}
-                      onChange={(e) => setInquiryForm((f) => ({ ...f, name: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="detail-email" className="text-sm text-gray-600">Email *</Label>
-                    <Input
-                      id="detail-email"
-                      type="email"
-                      placeholder="you@email.com"
-                      className="mt-1"
-                      value={inquiryForm.email}
-                      onChange={(e) => setInquiryForm((f) => ({ ...f, email: e.target.value }))}
-                    />
-                  </div>
-                </div>
-                <div className="mb-3">
-                  <Label htmlFor="detail-phone" className="text-sm text-gray-600">Phone</Label>
-                  <Input
-                    id="detail-phone"
-                    placeholder="Your phone number"
-                    className="mt-1"
-                    value={inquiryForm.phone}
-                    onChange={(e) => setInquiryForm((f) => ({ ...f, phone: e.target.value }))}
-                  />
-                </div>
-                <div className="mb-4">
-                  <Label htmlFor="detail-message" className="text-sm text-gray-600">Message</Label>
-                  <Textarea
-                    id="detail-message"
-                    placeholder={`Hello, I am interested in ${selectedProperty.title}...`}
-                    className="mt-1"
-                    rows={3}
-                    value={inquiryForm.message}
-                    onChange={(e) => setInquiryForm((f) => ({ ...f, message: e.target.value }))}
-                  />
-                </div>
-                <Button
-                  className="w-full text-white h-11"
-                  style={{ backgroundColor: primaryColor }}
-                  disabled={submitting}
-                  onClick={() => {
-                    setInquiryProperty(selectedProperty);
-                    submitInquiry();
-                  }}
-                >
-                  {submitting ? 'Sending...' : 'Send Inquiry'}
-                </Button>
-              </div>
-            </>
+            </motion.div>
           )}
-        </DialogContent>
-      </Dialog>
+        </AnimatePresence>
+      </nav>
 
-      {/* ── Inquiry Dialog (from card button) ──────────────────── */}
-      <Dialog open={inquiryOpen} onOpenChange={setInquiryOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold" style={{ color: primaryColor }}>
-              Inquire About Property
-            </DialogTitle>
-          </DialogHeader>
-          {inquiryProperty && (
-            <div className="space-y-4">
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <p className="font-semibold text-gray-900 text-sm">{inquiryProperty.title}</p>
-                <p className="text-sm font-bold" style={{ color: primaryColor }}>
-                  {formatPrice(inquiryProperty.price, inquiryProperty.currency)}
-                </p>
-              </div>
-              <div>
-                <Label htmlFor="inq-name" className="text-sm">Name *</Label>
-                <Input
-                  id="inq-name"
-                  placeholder="Your name"
-                  className="mt-1"
-                  value={inquiryForm.name}
-                  onChange={(e) => setInquiryForm((f) => ({ ...f, name: e.target.value }))}
-                />
-              </div>
-              <div>
-                <Label htmlFor="inq-email" className="text-sm">Email *</Label>
-                <Input
-                  id="inq-email"
-                  type="email"
-                  placeholder="you@email.com"
-                  className="mt-1"
-                  value={inquiryForm.email}
-                  onChange={(e) => setInquiryForm((f) => ({ ...f, email: e.target.value }))}
-                />
-              </div>
-              <div>
-                <Label htmlFor="inq-phone" className="text-sm">Phone</Label>
-                <Input
-                  id="inq-phone"
-                  placeholder="Your phone number"
-                  className="mt-1"
-                  value={inquiryForm.phone}
-                  onChange={(e) => setInquiryForm((f) => ({ ...f, phone: e.target.value }))}
-                />
-              </div>
-              <div>
-                <Label htmlFor="inq-message" className="text-sm">Message</Label>
-                <Textarea
-                  id="inq-message"
-                  placeholder={`Hello, I am interested in ${inquiryProperty.title}...`}
-                  className="mt-1"
-                  rows={3}
-                  value={inquiryForm.message}
-                  onChange={(e) => setInquiryForm((f) => ({ ...f, message: e.target.value }))}
-                />
-              </div>
-              <Button
-                className="w-full text-white h-11"
-                style={{ backgroundColor: primaryColor }}
-                disabled={submitting}
-                onClick={submitInquiry}
-              >
-                {submitting ? 'Sending...' : 'Send Inquiry'}
-              </Button>
+      {/* ── HERO SECTION ────────────────────────────────────── */}
+      <section
+        id="section-home"
+        className="relative h-[75vh] min-h-[500px] max-h-[800px] flex items-end overflow-hidden"
+      >
+        {/* Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-stone-800 via-stone-900 to-neutral-950">
+          {agent.heroImage && (
+            <img
+              src={agent.heroImage}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover opacity-40"
+            />
+          )}
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+
+        {/* Content Panel */}
+        <div className="container-luxury relative z-10 pb-16 md:pb-20">
+          <div className="glass-dark p-8 md:p-10 max-w-xl inline-block">
+            <p className="font-data text-[10px] tracking-luxury text-[#b8956a] mb-4">
+              LUXURY REAL ESTATE IN {agent.city?.toUpperCase() || 'YOUR CITY'}
+            </p>
+            <h1 className="font-serif-display text-4xl md:text-5xl text-white leading-tight">
+              {agent.name}
+            </h1>
+            {agent.tagline && (
+              <p className="font-data text-white/60 text-sm mt-3">{agent.tagline}</p>
+            )}
+            <div className="flex items-center gap-2 mt-6 font-data text-xs text-white/70">
+              <span className="font-serif-display text-xl text-white">{agent.propertyCount}</span>
+              <span className="tracking-wide">Properties</span>
+              <span className="text-white/30 mx-1">·</span>
+              <span className="font-serif-display text-xl text-white">{agent.dealsClosed}</span>
+              <span className="tracking-wide">Deals Closed</span>
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* ── Contact Section ────────────────────────────────────── */}
-      <section id="contacto-section" className="py-12 sm:py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
-            variants={fadeInUp}
-            transition={{ duration: 0.5 }}
-          >
-            <h2 className="text-2xl sm:text-3xl font-bold mb-8" style={{ color: primaryColor }}>
-              Contact
-            </h2>
-          </motion.div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Agent info card */}
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeInUp}
-              transition={{ duration: 0.4 }}
-              className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
+            <button
+              onClick={() => {
+                scrollTo('section-properties');
+                track('click', { elementText: 'VIEW LISTINGS' });
+              }}
+              className="btn-outline-luxury mt-8 !border-white/40 !text-white hover:!bg-white hover:!text-[#0a0a0a]"
             >
-              <div className="flex items-center gap-4 mb-6">
-                {agent.logo ? (
-                  <img src={agent.logo} alt={agent.businessName} className="w-16 h-16 rounded-xl object-contain" />
-                ) : (
-                  <div
-                    className="w-16 h-16 rounded-xl flex items-center justify-center text-white text-2xl font-bold"
-                    style={{ backgroundColor: primaryColor }}
-                  >
-                    {agent.businessName.charAt(0).toUpperCase()}
-                  </div>
+              VIEW LISTINGS
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FEATURED PROPERTIES ─────────────────────────────── */}
+      {featuredProperties.length > 0 && (
+        <section className="section-breath bg-[#FAFAF8]">
+          <div className="container-luxury">
+            <SectionReveal>
+              <p className="font-data text-[10px] tracking-luxury text-[#b8956a] mb-3">
+                CURATED SELECTION
+              </p>
+              <h2 className="font-serif-display text-3xl md:text-4xl text-[#0a0a0a]">
+                Featured Properties
+              </h2>
+            </SectionReveal>
+
+            <motion.div
+              variants={stagger}
+              initial="hidden"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12"
+            >
+              {featuredProperties.map((property) => (
+                <PropertyCard
+                  key={property.id}
+                  property={property}
+                  onClick={() => openDetail(property)}
+                />
+              ))}
+            </motion.div>
+          </div>
+        </section>
+      )}
+
+      {/* ── ABOUT SECTION ───────────────────────────────────── */}
+      <section id="section-about" ref={aboutSectionRef} className="section-breath bg-[#FAFAF8]">
+        <div className="container-luxury">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16 items-center">
+            {/* Left — Photo/Video Placeholder (60%) */}
+            <SectionReveal className="lg:col-span-3">
+              <div className="relative aspect-[4/3] bg-stone-900 overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-br from-stone-800 via-stone-900 to-neutral-950" />
+                {agent.logo && (
+                  <img
+                    src={agent.logo}
+                    alt={agent.name}
+                    className="absolute inset-0 w-full h-full object-cover img-premium opacity-60"
+                  />
                 )}
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900">{agent.businessName}</h3>
-                  {agent.displayName && (
-                    <p className="text-sm text-gray-500">{agent.displayName}</p>
-                  )}
+                {/* Play Button Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center z-10">
+                  <div className="w-16 h-16 rounded-full glass-dark flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                    <Play size={24} className="text-white ml-1" fill="white" />
+                  </div>
                 </div>
               </div>
+            </SectionReveal>
 
-              <div className="space-y-3 mb-6">
+            {/* Right — Bio (40%) */}
+            <SectionReveal className="lg:col-span-2">
+              <p className="font-data text-[10px] tracking-luxury text-[#b8956a] mb-3">ABOUT</p>
+              <h2 className="font-serif-display text-3xl text-[#0a0a0a]">{agent.name}</h2>
+              {agent.bio && (
+                <p className="font-data text-sm text-[#71717a] mt-5 leading-relaxed">
+                  {agent.bio}
+                </p>
+              )}
+
+              {/* Contact Details */}
+              <div className="mt-8 space-y-3">
                 {agent.phone && (
                   <a
                     href={`tel:${agent.phone}`}
-                    className="flex items-center gap-3 text-gray-600 hover:text-gray-900 transition-colors"
-                    onClick={() => track('phone_click', { elementId: 'contact_phone', elementText: agent.phone! })}
+                    className="flex items-center gap-3 font-data text-sm text-[#0a0a0a] hover:text-[#b8956a] transition-colors"
                   >
-                    <div
-                      className="w-10 h-10 rounded-lg flex items-center justify-center"
-                      style={{ backgroundColor: `${primaryColor}10` }}
-                    >
-                      <Phone className="w-5 h-5" style={{ color: primaryColor }} />
-                    </div>
-                    <span className="text-sm">{agent.phone}</span>
+                    <Phone size={15} className="text-[#b8956a]" /> {agent.phone}
                   </a>
                 )}
                 {agent.email && (
                   <a
                     href={`mailto:${agent.email}`}
-                    className="flex items-center gap-3 text-gray-600 hover:text-gray-900 transition-colors"
-                    onClick={() => track('email_click', { elementId: 'contact_email', elementText: agent.email! })}
+                    className="flex items-center gap-3 font-data text-sm text-[#0a0a0a] hover:text-[#b8956a] transition-colors"
                   >
-                    <div
-                      className="w-10 h-10 rounded-lg flex items-center justify-center"
-                      style={{ backgroundColor: `${primaryColor}10` }}
-                    >
-                      <Mail className="w-5 h-5" style={{ color: primaryColor }} />
-                    </div>
-                    <span className="text-sm">{agent.email}</span>
+                    <Mail size={15} className="text-[#b8956a]" /> {agent.email}
                   </a>
                 )}
                 {agent.city && (
-                  <div className="flex items-center gap-3 text-gray-600">
-                    <div
-                      className="w-10 h-10 rounded-lg flex items-center justify-center"
-                      style={{ backgroundColor: `${primaryColor}10` }}
-                    >
-                      <MapPin className="w-5 h-5" style={{ color: primaryColor }} />
-                    </div>
-                    <span className="text-sm">{[agent.city, agent.country].filter(Boolean).join(', ')}</span>
+                  <div className="flex items-center gap-3 font-data text-sm text-[#71717a]">
+                    <MapPin size={15} className="text-[#b8956a]" />
+                    {[agent.city, agent.country].filter(Boolean).join(', ')}
                   </div>
                 )}
               </div>
 
-              {/* Social links */}
-              {(agent.facebook || agent.instagram) && (
-                <div className="flex items-center gap-3">
-                  {agent.facebook && (
-                    <a
-                      href={agent.facebook}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-10 h-10 rounded-lg flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 transition-colors"
-                      onClick={() => track('social_click', { elementId: 'contact_facebook', elementText: 'Facebook' })}
-                    >
-                      <Facebook className="w-5 h-5" />
-                    </a>
-                  )}
-                  {agent.instagram && (
-                    <a
-                      href={agent.instagram}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-10 h-10 rounded-lg flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 transition-colors"
-                      onClick={() => track('social_click', { elementId: 'contact_instagram', elementText: 'Instagram' })}
-                    >
-                      <Instagram className="w-5 h-5" />
-                    </a>
-                  )}
-                </div>
-              )}
-            </motion.div>
-
-            {/* Map placeholder + WhatsApp CTA */}
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeInUp}
-              transition={{ duration: 0.4, delay: 0.1 }}
-              className="space-y-6"
-            >
-              {/* Map placeholder */}
-              <div
-                className="w-full h-48 bg-gray-200 rounded-xl flex items-center justify-center"
-                style={{
-                  background: `linear-gradient(135deg, ${primaryColor}08, ${accentColor}08)`,
-                }}
-              >
-                <div className="text-center">
-                  <MapPin className="w-8 h-8 mx-auto mb-2" style={{ color: `${primaryColor}40` }} />
-                  <p className="text-sm text-gray-400">
-                    {[agent.city, agent.country].filter(Boolean).join(', ') || 'Location'}
-                  </p>
-                </div>
+              {/* Social Links */}
+              <div className="flex items-center gap-4 mt-8">
+                {agent.facebook && (
+                  <a
+                    href={agent.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#71717a] hover:text-[#0a0a0a] transition-colors"
+                    aria-label="Facebook"
+                  >
+                    <Facebook size={18} />
+                  </a>
+                )}
+                {agent.instagram && (
+                  <a
+                    href={agent.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#71717a] hover:text-[#0a0a0a] transition-colors"
+                    aria-label="Instagram"
+                  >
+                    <Instagram size={18} />
+                  </a>
+                )}
+                {agent.whatsapp && (
+                  <a
+                    href={`https://wa.me/${agent.whatsapp.replace(/[^0-9]/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#71717a] hover:text-[#0a0a0a] transition-colors"
+                    aria-label="WhatsApp"
+                  >
+                    <MessageCircle size={18} />
+                  </a>
+                )}
               </div>
-
-              {/* WhatsApp CTA */}
-              {agent.whatsapp && (
-                <a
-                  href={`https://wa.me/${agent.whatsapp.replace(/[^0-9]/g, '')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-3 w-full py-4 bg-green-500 hover:bg-green-600 text-white rounded-xl font-semibold text-lg transition-colors"
-                  onClick={() => track('whatsapp_click', { elementId: 'contact_whatsapp_cta', elementText: 'WhatsApp CTA' })}
-                >
-                  <MessageCircle className="w-6 h-6" />
-                  Message us on WhatsApp
-                </a>
-              )}
-            </motion.div>
+            </SectionReveal>
           </div>
         </div>
       </section>
 
-      {/* ── Footer ─────────────────────────────────────────────── */}
-      <footer
-        className="mt-auto py-8 text-white"
-        style={{ backgroundColor: primaryColor }}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-center sm:text-left">
-              <p className="font-bold text-lg">{agent.businessName}</p>
-              <p className="text-white/70 text-sm">
-                {[agent.city, agent.country].filter(Boolean).join(', ') || 'Trinidad y Tobago'}
-              </p>
+      {/* ── ALL PROPERTIES SECTION ──────────────────────────── */}
+      <section id="section-properties" ref={propertiesSectionRef} className="section-breath bg-[#FAFAF8]">
+        <div className="container-luxury">
+          <SectionReveal>
+            <h2 className="font-serif-display text-3xl md:text-4xl text-[#0a0a0a]">All Properties</h2>
+          </SectionReveal>
+
+          {/* ── Filter Bar ──────────────────────────────────── */}
+          <SectionReveal className="mt-8">
+            <div className="flex flex-wrap gap-2 items-center">
+              {/* Property Type Pills */}
+              {propertyTypes.map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setFilterType(type === 'All' ? '' : type)}
+                  className={`px-4 py-2 font-data text-[11px] tracking-wide-luxury transition-all duration-300 ${
+                    (type === 'All' && !filterType) || filterType === type
+                      ? 'bg-[#0a0a0a] text-[#FAFAF8]'
+                      : 'bg-transparent text-[#71717a] hover:text-[#0a0a0a] hover:bg-[#0a0a0a]/5'
+                  }`}
+                >
+                  {type}
+                </button>
+              ))}
+
+              <span className="w-px h-5 bg-black/10 mx-2 hidden md:block" />
+
+              {/* Listing Type */}
+              {listingTypes.map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setFilterListing(filterListing === type ? '' : type)}
+                  className={`px-4 py-2 font-data text-[11px] tracking-wide-luxury transition-all duration-300 ${
+                    filterListing === type
+                      ? 'bg-[#0a0a0a] text-[#FAFAF8]'
+                      : 'bg-transparent text-[#71717a] hover:text-[#0a0a0a] hover:bg-[#0a0a0a]/5'
+                  }`}
+                >
+                  {type}
+                </button>
+              ))}
+
+              <span className="w-px h-5 bg-black/10 mx-2 hidden md:block" />
+
+              {/* Bedrooms */}
+              <select
+                value={filterBedrooms}
+                onChange={(e) => setFilterBedrooms(e.target.value)}
+                className="font-data text-[11px] tracking-wide-luxury bg-transparent text-[#71717a] cursor-pointer focus:outline-none appearance-none pr-4"
+              >
+                {bedroomOptions.map((opt, i) => (
+                  <option key={opt} value={i === 0 ? '' : String(i)}>
+                    {opt === 'Any' ? 'BEDROOMS' : `${opt} BEDS`}
+                  </option>
+                ))}
+              </select>
+
+              {/* Price Range */}
+              <select
+                value={filterPrice}
+                onChange={(e) => setFilterPrice(e.target.value)}
+                className="font-data text-[11px] tracking-wide-luxury bg-transparent text-[#71717a] cursor-pointer focus:outline-none appearance-none pr-4"
+              >
+                {priceOptions.map((opt, i) => (
+                  <option key={opt} value={i === 0 ? '' : opt}>
+                    {i === 0 ? 'PRICE RANGE' : `${i === 1 ? 'Under $500K' : i === 2 ? '$500K - $1M' : i === 3 ? '$1M - $2M' : i === 4 ? '$2M - $5M' : '$5M+'}`}
+                  </option>
+                ))}
+              </select>
             </div>
-            <div className="flex items-center gap-3">
-              {agent.facebook && (
-                <a
-                  href={agent.facebook}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+          </SectionReveal>
+
+          {/* Results Count */}
+          {pagination && (
+            <p className="font-data text-xs text-[#71717a] mt-6">
+              {pagination.total} {pagination.total === 1 ? 'property' : 'properties'} found
+            </p>
+          )}
+
+          {/* ── Properties Grid ─────────────────────────────── */}
+          {propsLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="aspect-[4/3] bg-stone-200" />
+                  <div className="mt-4 h-5 bg-stone-200 rounded w-3/4" />
+                  <div className="mt-2 h-4 bg-stone-200 rounded w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : properties.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="font-serif-display text-xl text-[#0a0a0a]">No Properties Found</p>
+              <p className="font-data text-sm text-[#71717a] mt-2">Try adjusting your filters.</p>
+            </div>
+          ) : (
+            <motion.div
+              variants={stagger}
+              initial="hidden"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8"
+            >
+              {properties.map((property) => (
+                <PropertyCard
+                  key={property.id}
+                  property={property}
+                  onClick={() => openDetail(property)}
+                />
+              ))}
+            </motion.div>
+          )}
+
+          {/* ── Pagination ────────────────────────────────────── */}
+          {pagination && pagination.totalPages > 1 && (
+            <div className="flex items-center justify-center gap-1 mt-12">
+              <button
+                onClick={() => applyFilters(currentPage - 1)}
+                disabled={currentPage <= 1}
+                className="p-2 text-[#71717a] hover:text-[#0a0a0a] disabled:opacity-30 transition-colors"
+                aria-label="Previous"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => applyFilters(page)}
+                  className={`w-9 h-9 font-data text-xs transition-all duration-300 ${
+                    page === currentPage
+                      ? 'bg-[#0a0a0a] text-[#FAFAF8]'
+                      : 'text-[#71717a] hover:text-[#0a0a0a] hover:bg-[#0a0a0a]/5'
+                  }`}
                 >
-                  <Facebook className="w-4 h-4" />
-                </a>
-              )}
-              {agent.instagram && (
-                <a
-                  href={agent.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
-                >
-                  <Instagram className="w-4 h-4" />
+                  {page}
+                </button>
+              ))}
+              <button
+                onClick={() => applyFilters(currentPage + 1)}
+                disabled={currentPage >= pagination.totalPages}
+                className="p-2 text-[#71717a] hover:text-[#0a0a0a] disabled:opacity-30 transition-colors"
+                aria-label="Next"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ── CONTACT SECTION ──────────────────────────────────── */}
+      <section id="section-contact" ref={contactSectionRef} className="section-breath bg-stone-900">
+        <div className="container-luxury">
+          <SectionReveal className="text-center max-w-2xl mx-auto">
+            <p className="font-data text-[10px] tracking-luxury text-[#b8956a] mb-3">GET IN TOUCH</p>
+            <h2 className="font-serif-display text-3xl md:text-4xl text-white">{agent.name}</h2>
+            {agent.tagline && (
+              <p className="font-data text-sm text-white/50 mt-3">{agent.tagline}</p>
+            )}
+            <div className="flex items-center justify-center gap-6 mt-6 font-data text-sm text-white/70">
+              {agent.phone && (
+                <a href={`tel:${agent.phone}`} className="hover:text-white transition-colors">
+                  <Phone size={14} className="inline mr-1.5" />{agent.phone}
                 </a>
               )}
               {agent.email && (
-                <a
-                  href={`mailto:${agent.email}`}
-                  className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
-                >
-                  <Mail className="w-4 h-4" />
+                <a href={`mailto:${agent.email}`} className="hover:text-white transition-colors">
+                  <Mail size={14} className="inline mr-1.5" />{agent.email}
                 </a>
               )}
             </div>
-          </div>
-          <Separator className="my-6 bg-white/20" />
-          <p className="text-center text-white/60 text-sm">
+            <button
+              onClick={() => {
+                if (agent.phone) window.open(`tel:${agent.phone}`);
+                track('click', { elementText: 'Schedule a Viewing' });
+              }}
+              className="btn-outline-luxury !border-white/30 !text-white hover:!bg-white hover:!text-[#0a0a0a] mt-8"
+            >
+              SCHEDULE A VIEWING
+            </button>
+          </SectionReveal>
+        </div>
+      </section>
+
+      {/* ── FOOTER ──────────────────────────────────────────── */}
+      <footer className="bg-[#0a0a0a] py-8">
+        <div className="container-luxury flex flex-col md:flex-row items-center justify-between gap-4">
+          <span className="font-serif-display text-sm text-white/60">
+            {agent.businessName}
+          </span>
+          <span className="font-data text-[11px] text-white/30">
             © {new Date().getFullYear()} {agent.businessName}. All rights reserved.
-          </p>
+          </span>
+          <div className="flex items-center gap-4">
+            {agent.facebook && (
+              <a href={agent.facebook} target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white/80 transition-colors" aria-label="Facebook">
+                <Facebook size={15} />
+              </a>
+            )}
+            {agent.instagram && (
+              <a href={agent.instagram} target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white/80 transition-colors" aria-label="Instagram">
+                <Instagram size={15} />
+              </a>
+            )}
+            {agent.whatsapp && (
+              <a href={`https://wa.me/${agent.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white/80 transition-colors" aria-label="WhatsApp">
+                <MessageCircle size={15} />
+              </a>
+            )}
+          </div>
         </div>
       </footer>
 
-      {/* ── Floating WhatsApp Button ───────────────────────────── */}
-      {agent.whatsapp && (
-        <a
-          href={`https://wa.me/${agent.whatsapp.replace(/[^0-9]/g, '')}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-green-500 text-white flex items-center justify-center shadow-lg hover:bg-green-600 hover:scale-110 transition-all"
-          onClick={() => track('whatsapp_click', { elementId: 'floating_whatsapp', elementText: 'WhatsApp' })}
-        >
-          <MessageCircle className="w-6 h-6" />
-        </a>
-      )}
+      
+      <AnimatePresence>
+        {detailOpen && selectedProperty && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8"
+            onClick={() => setDetailOpen(false)}
+          >
+            {/* Backdrop */}
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+
+            {/* Dialog */}
+            <motion.div
+              initial={{ opacity: 0, y: 40, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 40, scale: 0.97 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] as const }}
+              className="relative z-10 w-full max-w-6xl h-[85vh] md:h-[90vh] bg-white shadow-dramatic overflow-hidden flex flex-col md:flex-row"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setDetailOpen(false)}
+                className="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center bg-white/80 backdrop-blur-sm hover:bg-white transition-colors"
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+
+              {/* LEFT — Image Area (60%) */}
+              <div className="md:w-[60%] h-[40vh] md:h-full bg-stone-900 relative flex-shrink-0">
+                <div className="absolute inset-0 bg-gradient-to-br from-stone-800 via-stone-900 to-neutral-950" />
+                {selectedProperty.images?.[detailImageIndex] && (
+                  <img
+                    src={selectedProperty.images[detailImageIndex]}
+                    alt={selectedProperty.title}
+                    className="absolute inset-0 w-full h-full object-cover img-premium"
+                  />
+                )}
+
+                {/* Image Nav Arrows */}
+                {selectedProperty.images && selectedProperty.images.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => setDetailImageIndex((i) => (i > 0 ? i - 1 : selectedProperty.images.length - 1))}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 glass-dark flex items-center justify-center hover:bg-white/20 transition-colors"
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeft size={18} className="text-white" />
+                    </button>
+                    <button
+                      onClick={() => setDetailImageIndex((i) => (i < selectedProperty.images.length - 1 ? i + 1 : 0))}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 glass-dark flex items-center justify-center hover:bg-white/20 transition-colors"
+                      aria-label="Next image"
+                    >
+                      <ChevronRight size={18} className="text-white" />
+                    </button>
+                  </>
+                )}
+
+                {/* Image Dots */}
+                {selectedProperty.images && selectedProperty.images.length > 1 && (
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5">
+                    {selectedProperty.images.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setDetailImageIndex(i)}
+                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                          i === detailImageIndex ? 'bg-white w-6' : 'bg-white/40'
+                        }`}
+                        aria-label={`Image ${i + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* Video Tour Button */}
+                {(selectedProperty.videoUrl || selectedProperty.virtualTourUrl) && (
+                  <a
+                    href={selectedProperty.videoUrl || selectedProperty.virtualTourUrl || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute bottom-4 right-4 z-10 glass-dark px-5 py-2.5 flex items-center gap-2 hover:bg-white/20 transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <PlayCircle size={14} className="text-white" />
+                    <span className="font-data text-[10px] tracking-wide-luxury text-white">VIDEO TOUR</span>
+                  </a>
+                )}
+              </div>
+
+              {/* RIGHT — Details Panel (40%) */}
+              <div className="md:w-[40%] h-[60vh] md:h-full overflow-y-auto custom-scrollbar flex-shrink-0">
+                <div className="p-6 md:p-8">
+                  {/* Status + Price */}
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <span className={`inline-block glass-subtle px-2.5 py-1 text-[10px] font-data tracking-wide-luxury font-medium text-white ${statusColor(selectedProperty.status)}`}>
+                        {selectedProperty.status}
+                      </span>
+                    </div>
+                    <span className="font-data text-[10px] tracking-wide-luxury text-[#71717a] flex items-center gap-1">
+                      {propertyTypeIcon(selectedProperty.propertyType)}
+                      {selectedProperty.propertyType}
+                    </span>
+                  </div>
+
+                  <p className="font-data text-2xl font-medium mt-4 text-[#0a0a0a]">
+                    {formatPrice(selectedProperty.price, selectedProperty.currency)}
+                  </p>
+                  <p className="font-serif-display text-xl text-[#0a0a0a] mt-1">
+                    {selectedProperty.title}
+                  </p>
+                  <p className="font-data text-sm text-[#71717a] mt-1 flex items-center gap-1">
+                    <MapPin size={13} />
+                    {[selectedProperty.address, selectedProperty.neighborhood, selectedProperty.city, selectedProperty.country].filter(Boolean).join(', ')}
+                  </p>
+
+                  <div className="divider-luxury my-6" />
+
+                  {/* Details Grid */}
+                  <div className="grid grid-cols-2 gap-5">
+                    {[
+                      { label: 'BEDROOMS', value: selectedProperty.bedrooms ?? '—', icon: <Bed size={16} className="text-[#b8956a]" /> },
+                      { label: 'BATHROOMS', value: selectedProperty.bathrooms ?? '—', icon: <Bath size={16} className="text-[#b8956a]" /> },
+                      { label: 'AREA', value: selectedProperty.areaSqm ? `${selectedProperty.areaSqm.toLocaleString()} sqft` : '—', icon: <Maximize size={16} className="text-[#b8956a]" /> },
+                      { label: 'LOT SIZE', value: selectedProperty.lotSizeSqm ? `${selectedProperty.lotSizeSqm.toLocaleString()} sqft` : '—', icon: <LandPlot size={16} className="text-[#b8956a]" /> },
+                      { label: 'YEAR BUILT', value: selectedProperty.yearBuilt ?? '—', icon: <Calendar size={16} className="text-[#b8956a]" /> },
+                      { label: 'LISTING', value: selectedProperty.listingType, icon: <ArrowUpRight size={16} className="text-[#b8956a]" /> },
+                    ].map((item) => (
+                      <div key={item.label}>
+                        <p className="font-data text-[9px] tracking-luxury text-[#71717a] mb-1.5 flex items-center gap-1.5">
+                          {item.icon}
+                          {item.label}
+                        </p>
+                        <p className="font-serif-display text-lg text-[#0a0a0a]">
+                          {item.value}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="divider-luxury my-6" />
+
+                  {/* Description */}
+                  {selectedProperty.description && (
+                    <>
+                      <p className="font-data text-[10px] tracking-luxury text-[#b8956a] mb-3">DESCRIPTION</p>
+                      <p className="font-data text-sm text-[#71717a] leading-relaxed">
+                        {selectedProperty.description}
+                      </p>
+                      <div className="divider-luxury my-6" />
+                    </>
+                  )}
+
+                  {/* Features */}
+                  {selectedProperty.features && selectedProperty.features.length > 0 && (
+                    <>
+                      <p className="font-data text-[10px] tracking-luxury text-[#b8956a] mb-3">FEATURES</p>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedProperty.features.map((feature) => (
+                          <span
+                            key={feature}
+                            className="px-3 py-1.5 bg-[#f2f0eb] font-data text-[11px] text-[#0a0a0a] tracking-wide"
+                          >
+                            {feature}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="divider-luxury my-6" />
+                    </>
+                  )}
+
+                  {/* Inquiry Form */}
+                  <div>
+                    <p className="font-data text-[10px] tracking-luxury text-[#b8956a] mb-5">INQUIRE ABOUT THIS PROPERTY</p>
+
+                    {inquirySent ? (
+                      <div className="text-center py-8">
+                        <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-3">
+                          <ArrowRight size={20} className="text-emerald-600 rotate-[-45deg]" />
+                        </div>
+                        <p className="font-serif-display text-lg text-[#0a0a0a]">Inquiry Sent</p>
+                        <p className="font-data text-sm text-[#71717a] mt-1">
+                          {agent.name} will be in touch soon.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <input
+                          type="text"
+                          placeholder="Your Full Name"
+                          value={inquiryForm.name}
+                          onChange={(e) => setInquiryForm((f) => ({ ...f, name: e.target.value }))}
+                          className="w-full bg-transparent border-b border-black/10 focus:border-[#b8956a] font-data text-sm text-[#0a0a0a] placeholder:text-[#71717a]/50 pb-3 outline-none transition-colors duration-300"
+                        />
+                        <input
+                          type="email"
+                          placeholder="Email Address"
+                          value={inquiryForm.email}
+                          onChange={(e) => setInquiryForm((f) => ({ ...f, email: e.target.value }))}
+                          className="w-full bg-transparent border-b border-black/10 focus:border-[#b8956a] font-data text-sm text-[#0a0a0a] placeholder:text-[#71717a]/50 pb-3 outline-none transition-colors duration-300"
+                        />
+                        <input
+                          type="tel"
+                          placeholder="Phone Number"
+                          value={inquiryForm.phone}
+                          onChange={(e) => setInquiryForm((f) => ({ ...f, phone: e.target.value }))}
+                          className="w-full bg-transparent border-b border-black/10 focus:border-[#b8956a] font-data text-sm text-[#0a0a0a] placeholder:text-[#71717a]/50 pb-3 outline-none transition-colors duration-300"
+                        />
+                        <textarea
+                          placeholder="Your Message"
+                          rows={3}
+                          value={inquiryForm.message}
+                          onChange={(e) => setInquiryForm((f) => ({ ...f, message: e.target.value }))}
+                          className="w-full bg-transparent border-b border-black/10 focus:border-[#b8956a] font-data text-sm text-[#0a0a0a] placeholder:text-[#71717a]/50 pb-3 outline-none transition-colors duration-300 resize-none"
+                        />
+                        <button
+                          onClick={submitInquiry}
+                          disabled={submitting || !inquiryForm.name.trim() || !inquiryForm.email.trim()}
+                          className="btn-primary-luxury w-full disabled:opacity-40 disabled:cursor-not-allowed mt-2"
+                        >
+                          {submitting ? 'SENDING...' : 'SEND INQUIRY'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
