@@ -294,7 +294,7 @@ export async function POST() {
       },
     ];
 
-    const properties: Array<{ id: string; slug: string; title: string; status: string; price: number }> = [];
+    const properties: Array<{ id: string; slug: string; title: string; status: string; price: number | null }> = [];
     for (const p of propertiesData) {
       const existing = await db.property.findUnique({
         where: { agentId_slug: { agentId: p.agentId, slug: p.slug } },
@@ -303,8 +303,8 @@ export async function POST() {
       properties.push(prop);
     }
 
-    const apartmentProp = properties[0];
-    const villaProp = properties[5];
+    const apartmentProp = properties[0]!;
+    const villaProp = properties[5]!;
 
     // ── Clients (4) ─────────────────────────────────────────────────────────
     const clientsData = [
@@ -384,9 +384,9 @@ export async function POST() {
         clientId: clients[3].id,
         dealType: 'sale',
         status: 'closed',
-        totalPrice: villaProp.price,
+        totalPrice: villaProp.price ?? 0,
         currency: 'TTD',
-        commission: villaProp.price * 0.05,
+        commission: (villaProp.price ?? 0) * 0.05,
         commissionRate: 5.0,
         closeDate: daysAgo(5),
         notes: 'Venta exitosa de la villa de lujo. Trato completado con todas las inspecciones aprobadas.',
@@ -397,9 +397,9 @@ export async function POST() {
         clientId: miguelClient.id,
         dealType: 'sale',
         status: 'pending',
-        totalPrice: apartmentProp.price,
+        totalPrice: apartmentProp.price ?? 0,
         currency: 'TTD',
-        commission: apartmentProp.price * 0.05,
+        commission: (apartmentProp.price ?? 0) * 0.05,
         commissionRate: 5.0,
         notes: 'El cliente está gestionando la aprobación del préstamo bancario. Esperando confirmación.',
       },

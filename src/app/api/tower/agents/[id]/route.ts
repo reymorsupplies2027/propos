@@ -65,7 +65,7 @@ export async function PATCH(
     if (bio !== undefined) updateData.bio = bio;
 
     // Handle plan assignment change
-    let subscriptionResult = null;
+    let subscriptionResult: Record<string, unknown> | null = null;
     if (planId !== undefined && planId !== null) {
       const plan = await db.plan.findUnique({ where: { id: planId } });
       if (!plan) {
