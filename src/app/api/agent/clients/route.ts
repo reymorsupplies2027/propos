@@ -34,9 +34,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ clients })
   } catch (error) {
-    console.error('Error al listar clientes:', error)
+    console.error('Error listing clients:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
 
     if (!firstName?.trim() || !lastName?.trim()) {
       return NextResponse.json(
-        { error: 'El nombre y apellido son obligatorios' },
+        { error: 'First name and last name are required' },
         { status: 400 },
       )
     }
@@ -88,9 +88,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ client }, { status: 201 })
   } catch (error) {
-    console.error('Error al crear cliente:', error)
+    console.error('Error creating client:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }

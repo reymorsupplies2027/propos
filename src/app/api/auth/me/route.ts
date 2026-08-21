@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
 
     if (!token) {
       return NextResponse.json(
-        { error: 'No autenticado' },
+        { error: 'Not authenticated' },
         { status: 401 }
       );
     }
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     const payload = verifyToken(token);
     if (!payload) {
       return NextResponse.json(
-        { error: 'Token inválido o expirado' },
+        { error: 'Invalid or expired token' },
         { status: 401 }
       );
     }
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
 
       if (!owner) {
         return NextResponse.json(
-          { error: 'Usuario no encontrado' },
+          { error: 'User not found' },
           { status: 404 }
         );
       }
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
 
       if (!user || !user.agent) {
         return NextResponse.json(
-          { error: 'Usuario no encontrado' },
+          { error: 'User not found' },
           { status: 404 }
         );
       }
@@ -77,13 +77,13 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: 'Rol no reconocido' },
+      { error: 'Unrecognized role' },
       { status: 403 }
     );
   } catch (error) {
-    console.error('Error al obtener usuario actual:', error);
+    console.error('Error fetching current user:', error);
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

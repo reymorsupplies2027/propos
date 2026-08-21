@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
 
     if (!agentSlug?.trim()) {
       return NextResponse.json(
-        { error: 'El parámetro ?agent= es obligatorio' },
+        { error: 'The ?agent= parameter is required' },
         { status: 400 },
       )
     }
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     if (!agent) {
       return NextResponse.json(
-        { error: 'Agente no encontrado' },
+        { error: 'Agent not found' },
         { status: 404 },
       )
     }
@@ -117,26 +117,26 @@ export async function GET(request: NextRequest) {
     }))
 
     return NextResponse.json({
-      agente: {
-        nombreComercial: agent.businessName,
-        colorPrimario: agent.primaryColor,
-        colorAcento: agent.accentColor,
+      agent: {
+        businessName: agent.businessName,
+        primaryColor: agent.primaryColor,
+        accentColor: agent.accentColor,
         logo: agent.logo,
-        telefono: agent.phone,
+        phone: agent.phone,
         whatsapp: agent.whatsapp,
       },
-      propiedades: parsed,
-      paginacion: {
-        pagina: page,
-        limite: limit,
+      properties: parsed,
+      pagination: {
+        page: page,
+        limit: limit,
         total,
-        totalPaginas: Math.ceil(total / limit),
+        totalPages: Math.ceil(total / limit),
       },
     })
   } catch (error) {
-    console.error('Error al listar propiedades públicas:', error)
+    console.error('Error listing public properties:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }

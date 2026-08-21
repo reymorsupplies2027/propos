@@ -34,13 +34,13 @@ export default function LoginPage({ onNavigate, onLogin }: LoginPageProps) {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'Error al iniciar sesion');
+        setError(data.error || 'Error signing in');
         return;
       }
 
       onLogin(data.user);
     } catch {
-      setError('Error de conexion. Intente de nuevo.');
+      setError('Connection error. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -62,13 +62,13 @@ export default function LoginPage({ onNavigate, onLogin }: LoginPageProps) {
             <Building2 className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-[#1B4332]">PROPOS</h1>
-          <p className="text-[#6B7280] mt-1">Plataforma para profesionales inmobiliarios</p>
+          <p className="text-[#6B7280] mt-1">Platform for real estate professionals</p>
         </div>
 
         <Card className="border-0 shadow-lg shadow-black/5">
           <CardHeader className="text-center pb-2">
-            <CardTitle className="text-xl text-[#1a1a1a]">Iniciar Sesion</CardTitle>
-            <CardDescription>Accede a tu panel de gestion</CardDescription>
+            <CardTitle className="text-xl text-[#1a1a1a]">Sign In</CardTitle>
+            <CardDescription>Access your management dashboard</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -79,13 +79,13 @@ export default function LoginPage({ onNavigate, onLogin }: LoginPageProps) {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="email">Correo electronico</Label>
+                <Label htmlFor="email">Email address</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9A9A9A]" />
                   <Input
                     id="email"
                     type="email"
-                    placeholder="tu@correo.com"
+                    placeholder="you@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10"
@@ -95,13 +95,13 @@ export default function LoginPage({ onNavigate, onLogin }: LoginPageProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Contrasena</Label>
+                <Label htmlFor="password">Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9A9A9A]" />
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Tu contrasena"
+                    placeholder="Your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10 pr-10"
@@ -126,7 +126,7 @@ export default function LoginPage({ onNavigate, onLogin }: LoginPageProps) {
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   <>
-                    Ingresar
+                    Sign In
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </>
                 )}
@@ -139,7 +139,7 @@ export default function LoginPage({ onNavigate, onLogin }: LoginPageProps) {
                   onClick={() => onNavigate('portal_laura')}
                   className="text-[#D4A373] hover:underline font-medium"
                 >
-                  Ver portal de agente de ejemplo
+                  View example agent portal
                 </button>
               </p>
             </div>

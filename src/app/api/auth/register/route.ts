@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
 
     if (!email || !name || !password || !businessName) {
       return NextResponse.json(
-        { error: 'Correo electrónico, nombre, contraseña y nombre del negocio son obligatorios' },
+        { error: 'Email, name, password, and business name are required' },
         { status: 400 }
       );
     }
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     });
     if (existingOwner) {
       return NextResponse.json(
-        { error: 'Este correo electrónico ya está registrado' },
+        { error: 'This email is already registered' },
         { status: 409 }
       );
     }
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     });
     if (existingUser) {
       return NextResponse.json(
-        { error: 'Este correo electrónico ya está registrado' },
+        { error: 'This email is already registered' },
         { status: 409 }
       );
     }
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     });
     if (existingAgentSlug) {
       return NextResponse.json(
-        { error: 'El nombre del negocio ya está en uso' },
+        { error: 'This business name is already in use' },
         { status: 409 }
       );
     }
@@ -96,9 +96,9 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error('Error en registro:', error);
+    console.error('Error during registration:', error);
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

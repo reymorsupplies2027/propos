@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
 
     if (!slug?.trim()) {
       return NextResponse.json(
-        { error: 'El parámetro ?slug= es obligatorio' },
+        { error: 'The ?slug= parameter is required' },
         { status: 400 },
       )
     }
@@ -44,36 +44,36 @@ export async function GET(request: NextRequest) {
 
     if (!agent) {
       return NextResponse.json(
-        { error: 'Agente no encontrado' },
+        { error: 'Agent not found' },
         { status: 404 },
       )
     }
 
     return NextResponse.json({
-      agente: {
-        nombreComercial: agent.businessName,
-        nombre: agent.displayName,
-        eslogan: agent.tagline,
-        biografia: agent.bio,
-        telefono: agent.phone,
+      agent: {
+        businessName: agent.businessName,
+        name: agent.displayName,
+        tagline: agent.tagline,
+        bio: agent.bio,
+        phone: agent.phone,
         whatsapp: agent.whatsapp,
-        correo: agent.email,
+        email: agent.email,
         facebook: agent.facebook,
         instagram: agent.instagram,
         logo: agent.logo,
-        imagenPortada: agent.heroImage,
-        colorPrimario: agent.primaryColor,
-        colorAcento: agent.accentColor,
-        ciudad: agent.city,
-        pais: agent.country,
-        cantidadPropiedades: agent._count.properties,
-        tratosCerrados: agent._count.deals,
+        heroImage: agent.heroImage,
+        primaryColor: agent.primaryColor,
+        accentColor: agent.accentColor,
+        city: agent.city,
+        country: agent.country,
+        propertyCount: agent._count.properties,
+        dealsClosed: agent._count.deals,
       },
     })
   } catch (error) {
-    console.error('Error al obtener perfil público del agente:', error)
+    console.error('Error fetching public agent profile:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }

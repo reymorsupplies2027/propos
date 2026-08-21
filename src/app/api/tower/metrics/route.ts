@@ -7,17 +7,17 @@ import { Prisma } from '@prisma/client';
 async function requirePlatformOwner(request: NextRequest) {
   const token = request.cookies.get('propos-token')?.value;
   if (!token) {
-    return { error: NextResponse.json({ error: 'No autenticado' }, { status: 401 }), user: null };
+    return { error: NextResponse.json({ error: 'Not authenticated' }, { status: 401 }), user: null };
   }
 
   const payload = verifyToken(token);
   if (!payload) {
-    return { error: NextResponse.json({ error: 'Token inválido o expirado' }, { status: 401 }), user: null };
+    return { error: NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 }), user: null };
   }
 
   const { role } = payload as { role: string };
   if (role !== 'platform_owner') {
-    return { error: NextResponse.json({ error: 'Acceso denegado. Solo el propietario de la plataforma puede acceder.' }, { status: 403 }), user: null };
+    return { error: NextResponse.json({ error: 'Access denied. Only the platform owner can access this resource.' }, { status: 403 }), user: null };
   }
 
   return { error: null, user: payload };
@@ -202,11 +202,11 @@ export async function GET(request: NextRequest) {
     // Merge and sort by time
     type FeedItem = {
       id: string;
-      tipo: string;
-      descripcion: string;
-      agente: { id: string; businessName: string; displayName: string } | null;
-      fecha: Date;
-      metadatos?: Record<string, unknown>;
+      type: string;
+      description: string;
+      agent: { id: string; businessName: string; displayName: string } | null;
+      date: Date;
+      metadata?: Record<string, unknown>;
     };
 
     const feed: FeedItem[] = [];
@@ -214,88 +214,88 @@ export async function GET(request: NextRequest) {
     for (const deal of recentDeals) {
       feed.push({
         id: deal.id,
-        tipo: 'trato',
-        descripcion: `Nuevo trato: ${deal.dealType === 'sale' ? 'venta' : 'alquiler'} — ${deal.currency} ${deal.totalPrice ?? 0}`,
-        agente: deal.agent,
-        fecha: deal.createdAt,
-        metadatos: { dealStatus: deal.status, propertyTitle: deal.property?.title ?? null },
+        type: 'deal',
+        description: `New deal: ${deal.dealType === 'sale' ? 'sale' : 'rental'} — ${deal.currency} ${deal.totalPrice ?? 0}`,
+        agent: deal.agent,
+        date: deal.createdAt,
+        metadata: { dealStatus: deal.status, propertyTitle: deal.property?.title ?? null },
       });
     }
 
     for (const prop of recentProperties) {
       feed.push({
         id: prop.id,
-        tipo: 'propiedad',
-        descripcion: `Nueva propiedad: ${prop.title}`,
-        agente: prop.agent,
-        fecha: prop.createdAt,
-        metadatos: { propertyType: prop.propertyType, listingType: prop.listingType, status: prop.status },
+        type: 'property',
+        description: `New property: ${prop.title}`,
+        agent: prop.agent,
+        date: prop.createdAt,
+        metadata: { propertyType: prop.propertyType, listingType: prop.listingType, status: prop.status },
       });
     }
 
     for (const client of recentClients) {
       feed.push({
         id: client.id,
-        tipo: 'cliente',
-        descripcion: `Nuevo cliente: ${client.firstName} ${client.lastName}`,
-        agente: client.agent,
-        fecha: client.createdAt,
-        metadatos: { source: client.source, clientStatus: client.status },
+        type: 'client',
+        description: `New client: ${client.firstName} ${client.lastName}`,
+        agent: client.agent,
+        date: client.createdAt,
+        metadata: { source: client.source, clientStatus: client.status },
       });
     }
 
     // Sort by date descending and take top 20
-    feed.sort((a, b) => b.fecha.getTime() - a.fecha.getTime());
+    feed.sort((a, b) => b.date.getTime() - a.date.getTime());
     const recentActivity = feed.slice(0, 20);
 
     return NextResponse.json({
-      agentes: {
+      agents: {
         total: totalAgents,
-        activos: agentCounts['active'] ?? 0,
-        suspendidos: agentCounts['suspended'] ?? 0,
-        porEstado: agentCounts,
+        active: agentCounts['active'] ?? 0,
+        suspended: agentCounts['suspended'] ?? 0,
+        byStatus: agentCounts,
       },
-      propiedades: {
+      properties: {
         total: totalProperties,
-        disponibles: propertyCounts['available'] ?? 0,
-        pendientes: propertyCounts['pending'] ?? 0,
-        vendidas: propertyCounts['sold'] ?? 0,
-        alquiladas: propertyCounts['rented'] ?? 0,
-        porEstado: propertyCounts,
+        available: propertyCounts['available'] ?? 0,
+        pending: propertyCounts['pending'] ?? 0,
+        sold: propertyCounts['sold'] ?? 0,
+        rented: propertyCounts['rented'] ?? 0,
+        byStatus: propertyCounts,
       },
-      clientes: {
+      clients: {
         total: totalClients,
       },
-      tratos: {
+      deals: {
         total: totalDeals,
-        porEstado: dealCounts,
+        byStatus: dealCounts,
       },
-      ingresos: {
-        ingresoMensualEstimado: Math.round(totalMonthlyRevenue * 100) / 100,
-        suscripcionesActivas: activeSubscriptions.length,
-        desglosePorPlan: revenueBreakdown,
+      revenue: {
+        estimatedMonthlyRevenue: Math.round(totalMonthlyRevenue * 100) / 100,
+        activeSubscriptions: activeSubscriptions.length,
+        breakdownByPlan: revenueBreakdown,
       },
-      visitantes: {
-        ultimos7Dias: visitors7d,
-        ultimos30Dias: visitors30d,
+      visitors: {
+        last7Days: visitors7d,
+        last30Days: visitors30d,
       },
-      mejoresAgentes: {
-        porTratosCerrados: topAgentsByDeals.map((a) => ({
+      topAgents: {
+        byDealsClosed: topAgentsByDeals.map((a) => ({
           id: a.id,
-          nombreComercial: a.businessName,
-          nombreMostrado: a.displayName,
+          businessName: a.businessName,
+          displayName: a.displayName,
           slug: a.slug,
-          ciudad: a.city,
-          totalTratos: a._count.deals,
+          city: a.city,
+          totalDeals: a._count.deals,
         })),
-        porTraficoVisitantes: topAgentsByVisitors,
+        byVisitorTraffic: topAgentsByVisitors,
       },
-      actividadReciente: recentActivity,
+      recentActivity: recentActivity,
     });
   } catch (error) {
-    console.error('Error al obtener métricas de la plataforma:', error);
+    console.error('Error fetching platform metrics:', error);
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

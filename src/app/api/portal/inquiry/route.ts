@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     if (!agentSlug?.trim() || !propertyId?.trim() || !name?.trim() || !email?.trim()) {
       return NextResponse.json(
-        { error: 'Los campos agentSlug, propertyId, name y email son obligatorios' },
+        { error: 'The fields agentSlug, propertyId, name and email are required' },
         { status: 400 },
       )
     }
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
     if (!agent) {
       return NextResponse.json(
-        { error: 'Agente no encontrado' },
+        { error: 'Agent not found' },
         { status: 404 },
       )
     }
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     if (!property) {
       return NextResponse.json(
-        { error: 'Propiedad no encontrada' },
+        { error: 'Property not found' },
         { status: 404 },
       )
     }
@@ -92,27 +92,27 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json({
-      consulta: {
+      inquiry: {
         id: inquiry.id,
-        propiedadId: inquiry.propertyId,
-        nombre: inquiry.name,
-        correo: inquiry.email,
-        mensaje: inquiry.message,
-        estado: inquiry.status,
-        creadoEn: inquiry.createdAt,
+        propertyId: inquiry.propertyId,
+        name: inquiry.name,
+        email: inquiry.email,
+        message: inquiry.message,
+        status: inquiry.status,
+        createdAt: inquiry.createdAt,
       },
-      cliente: {
+      client: {
         id: client.id,
-        nombre: `${client.firstName} ${client.lastName}`.trim(),
-        correo: client.email,
-        telefono: client.phone,
-        fuente: client.source,
+        name: `${client.firstName} ${client.lastName}`.trim(),
+        email: client.email,
+        phone: client.phone,
+        source: client.source,
       },
     })
   } catch (error) {
-    console.error('Error al enviar consulta:', error)
+    console.error('Error submitting inquiry:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }

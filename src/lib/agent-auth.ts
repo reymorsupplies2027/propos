@@ -16,17 +16,17 @@ export async function authenticateAgent(
 ): Promise<{ ctx: AgentContext } | NextResponse> {
   const token = request.cookies.get('propos-token')?.value;
   if (!token) {
-    return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
+    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   }
 
   const payload = verifyToken(token);
   if (!payload) {
-    return NextResponse.json({ error: 'Token inválido o expirado' }, { status: 401 });
+    return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
   }
 
   const { id: userId, role } = payload as { id: string; role: string };
   if (role !== 'agent') {
-    return NextResponse.json({ error: 'Acceso no autorizado' }, { status: 403 });
+    return NextResponse.json({ error: 'Unauthorized access' }, { status: 403 });
   }
 
   const agent = await db.agent.findUnique({
@@ -36,7 +36,7 @@ export async function authenticateAgent(
 
   if (!agent) {
     return NextResponse.json(
-      { error: 'Perfil de agente no encontrado' },
+      { error: 'Agent profile not found' },
       { status: 404 },
     );
   }

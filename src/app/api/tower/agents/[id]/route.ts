@@ -7,17 +7,17 @@ import { Prisma } from '@prisma/client';
 async function requirePlatformOwner(request: NextRequest) {
   const token = request.cookies.get('propos-token')?.value;
   if (!token) {
-    return { error: NextResponse.json({ error: 'No autenticado' }, { status: 401 }), user: null };
+    return { error: NextResponse.json({ error: 'Not authenticated' }, { status: 401 }), user: null };
   }
 
   const payload = verifyToken(token);
   if (!payload) {
-    return { error: NextResponse.json({ error: 'Token inválido o expirado' }, { status: 401 }), user: null };
+    return { error: NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 }), user: null };
   }
 
   const { role } = payload as { role: string };
   if (role !== 'platform_owner') {
-    return { error: NextResponse.json({ error: 'Acceso denegado. Solo el propietario de la plataforma puede acceder.' }, { status: 403 }), user: null };
+    return { error: NextResponse.json({ error: 'Access denied. Only the platform owner can access this resource.' }, { status: 403 }), user: null };
   }
 
   return { error: null, user: payload };
@@ -37,7 +37,7 @@ export async function PATCH(
 
     const agent = await db.agent.findUnique({ where: { id } });
     if (!agent) {
-      return NextResponse.json({ error: 'Agente no encontrado' }, { status: 404 });
+      return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
     }
 
     const body = await request.json();
@@ -50,7 +50,7 @@ export async function PATCH(
       const allowedStatuses = ['active', 'suspended'];
       if (!allowedStatuses.includes(status)) {
         return NextResponse.json(
-          { error: `Estado no válido. Valores permitidos: ${allowedStatuses.join(', ')}` },
+          { error: `Invalid status. Allowed values: ${allowedStatuses.join(', ')}` },
           { status: 400 }
         );
       }
@@ -69,10 +69,10 @@ export async function PATCH(
     if (planId !== undefined && planId !== null) {
       const plan = await db.plan.findUnique({ where: { id: planId } });
       if (!plan) {
-        return NextResponse.json({ error: 'Plan no encontrado' }, { status: 404 });
+        return NextResponse.json({ error: 'Plan not found' }, { status: 404 });
       }
       if (!plan.isActive) {
-        return NextResponse.json({ error: 'El plan seleccionado no está activo' }, { status: 400 });
+        return NextResponse.json({ error: 'The selected plan is not active' }, { status: 400 });
       }
 
       // Deactivate current active subscriptions
@@ -109,14 +109,14 @@ export async function PATCH(
     });
 
     return NextResponse.json({
-      mensaje: 'Agente actualizado correctamente',
-      agente: updatedAgent,
-      nuevaSuscripcion: subscriptionResult,
+      message: 'Agent updated successfully',
+      agent: updatedAgent,
+      newSubscription: subscriptionResult,
     });
   } catch (error) {
-    console.error('Error al actualizar agente:', error);
+    console.error('Error updating agent:', error);
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
@@ -142,12 +142,12 @@ export async function DELETE(
     });
 
     if (!agent) {
-      return NextResponse.json({ error: 'Agente no encontrado' }, { status: 404 });
+      return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
     }
 
     if (agent.subscriptions.length > 0) {
       return NextResponse.json(
-        { error: 'No se puede suspender al agente porque tiene suscripciones activas. Cancela las suscripciones primero.' },
+        { error: 'Cannot suspend agent because they have active subscriptions. Cancel the subscriptions first.' },
         { status: 400 }
       );
     }
@@ -158,13 +158,13 @@ export async function DELETE(
     });
 
     return NextResponse.json({
-      mensaje: 'Agente suspendido correctamente',
-      agente: updatedAgent,
+      message: 'Agent suspended successfully',
+      agent: updatedAgent,
     });
   } catch (error) {
-    console.error('Error al suspender agente:', error);
+    console.error('Error suspending agent:', error);
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

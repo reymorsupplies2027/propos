@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
     >(
       `SELECT
          CASE
-           WHEN referrer IS NULL OR referrer = '' THEN 'directo'
+           WHEN referrer IS NULL OR referrer = '' THEN 'direct'
            ELSE SUBSTR(referrer, INSTR(referrer, '://') + 3,
                 CASE WHEN INSTR(SUBSTR(referrer, INSTR(referrer, '://') + 3), '/') > 0
                   THEN INSTR(SUBSTR(referrer, INSTR(referrer, '://') + 3), '/') - 1
@@ -178,9 +178,9 @@ export async function GET(request: NextRequest) {
       conversionRate,
     })
   } catch (error) {
-    console.error('Error al obtener analíticas:', error)
+    console.error('Error fetching analytics:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }

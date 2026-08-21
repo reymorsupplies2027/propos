@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { error: 'Correo electrónico y contraseña son obligatorios' },
+        { error: 'Email and password are required' },
         { status: 400 }
       );
     }
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       const valid = await verifyPassword(password, owner.passwordHash);
       if (!valid) {
         return NextResponse.json(
-          { error: 'Credenciales inválidas' },
+          { error: 'Invalid credentials' },
           { status: 401 }
         );
       }
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Credenciales inválidas' },
+        { error: 'Invalid credentials' },
         { status: 401 }
       );
     }
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     const valid = await verifyPassword(password, user.passwordHash);
     if (!valid) {
       return NextResponse.json(
-        { error: 'Credenciales inválidas' },
+        { error: 'Invalid credentials' },
         { status: 401 }
       );
     }
@@ -105,9 +105,9 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error('Error en inicio de sesión:', error);
+    console.error('Error during login:', error);
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

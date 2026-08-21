@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
     if (!agentSlug?.trim() || !eventType?.trim()) {
       return NextResponse.json(
-        { error: 'Los campos agentSlug y eventType son obligatorios' },
+        { error: 'The fields agentSlug and eventType are required' },
         { status: 400 },
       )
     }
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     if (!agent) {
       return NextResponse.json(
-        { error: 'Agente no encontrado' },
+        { error: 'Agent not found' },
         { status: 404 },
       )
     }
@@ -61,11 +61,11 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    return NextResponse.json({ rastreado: true })
+    return NextResponse.json({ tracked: true })
   } catch (error) {
-    console.error('Error al rastrear evento de visitante:', error)
+    console.error('Error tracking visitor event:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }

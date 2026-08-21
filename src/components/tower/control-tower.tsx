@@ -151,7 +151,7 @@ interface ControlTowerProps {
 // ── Helpers ────────────────────────────────────────────────────────
 
 function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('es-TT', {
+  return new Intl.NumberFormat('en-TT', {
     style: 'currency',
     currency: 'TTD',
     minimumFractionDigits: 0,
@@ -160,7 +160,7 @@ function formatCurrency(amount: number): string {
 }
 
 function formatNumber(n: number): string {
-  return new Intl.NumberFormat('es-TT').format(n);
+  return new Intl.NumberFormat('en-TT').format(n);
 }
 
 function timeAgo(dateStr: string): string {
@@ -171,11 +171,11 @@ function timeAgo(dateStr: string): string {
   const hours = Math.floor(diffMs / 3600000);
   const days = Math.floor(diffMs / 86400000);
 
-  if (minutes < 1) return 'Justo ahora';
-  if (minutes < 60) return `Hace ${minutes} min`;
-  if (hours < 24) return `Hace ${hours}h`;
-  if (days < 7) return `Hace ${days}d`;
-  return new Date(dateStr).toLocaleDateString('es-TT', { day: 'numeric', month: 'short' });
+  if (minutes < 1) return 'Just now';
+  if (minutes < 60) return `${minutes} min ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days < 7) return `${days}d ago`;
+  return new Date(dateStr).toLocaleDateString('en-TT', { day: 'numeric', month: 'short' });
 }
 
 function getActivityIcon(type: string) {
@@ -391,39 +391,39 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
     if (!metrics) return null;
     const kpis = [
       {
-        label: 'Agentes Activos',
+        label: 'Active Agents',
         value: formatNumber(metrics.agents.active),
-        subtitle: `de ${formatNumber(metrics.agents.total)} totales`,
+        subtitle: `of ${formatNumber(metrics.agents.total)} total`,
         icon: Users,
         trend: 'up' as const,
         color: '#2D6A4F',
         bgColor: '#ECFDF5',
       },
       {
-        label: 'Propiedades Publicadas',
+        label: 'Published Properties',
         value: formatNumber(metrics.properties.total),
-        subtitle: `${formatNumber(metrics.properties.available)} disp. · ${formatNumber(metrics.properties.sold)} vend. · ${formatNumber(metrics.properties.rented)} alq.`,
+        subtitle: `${formatNumber(metrics.properties.available)} avail. · ${formatNumber(metrics.properties.sold)} sold · ${formatNumber(metrics.properties.rented)} rented`,
         icon: Home,
         trend: 'up' as const,
         color: '#1B4332',
         bgColor: '#F0FDF4',
       },
       {
-        label: 'Ingresos Mensuales',
+        label: 'Monthly Revenue',
         value: formatCurrency(metrics.revenue.monthly),
         subtitle:
           metrics.revenue.byPlan
             .map((p) => `${p.plan}: ${formatCurrency(p.amount)}`)
-            .join(' · ') || 'Sin datos por plan',
+            .join(' · ') || 'No data by plan',
         icon: DollarSign,
         trend: 'up' as const,
         color: '#D4A373',
         bgColor: '#FFF7ED',
       },
       {
-        label: 'Visitantes (30d)',
+        label: 'Visitors (30d)',
         value: formatNumber(metrics.visitors.last30d),
-        subtitle: `${formatNumber(metrics.visitors.last7d)} en los últimos 7 días`,
+        subtitle: `${formatNumber(metrics.visitors.last7d)} in the last 7 days`,
         icon: Eye,
         trend: metrics.visitors.last7d > 0 ? ('up' as const) : ('down' as const),
         color: '#6B7280',
@@ -488,13 +488,13 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <CardTitle className="text-lg font-bold text-[#1B4332]">
               <Users className="w-5 h-5 inline-block mr-2" />
-              Agentes
+              Agents
             </CardTitle>
             <div className="flex items-center gap-2">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9A9A9A]" />
                 <Input
-                  placeholder="Buscar agente..."
+                  placeholder="Search agent..."
                   value={agentSearch}
                   onChange={(e) => setAgentSearch(e.target.value)}
                   className="pl-9 h-9 w-48 md:w-56 text-sm bg-[#F9FAFB] border-[#E5E7EB] focus:border-[#D4A373]"
@@ -502,12 +502,12 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="h-9 w-32 text-sm bg-[#F9FAFB] border-[#E5E7EB]">
-                  <SelectValue placeholder="Estado" />
+                  <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="active">Activos</SelectItem>
-                  <SelectItem value="suspended">Suspendidos</SelectItem>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="suspended">Suspended</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -517,8 +517,8 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
           {agents.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-[#9A9A9A]">
               <Users className="w-10 h-10 mb-3 opacity-40" />
-              <p className="text-sm font-medium">No se encontraron agentes</p>
-              <p className="text-xs mt-1">Intenta ajustar los filtros de búsqueda</p>
+              <p className="text-sm font-medium">No agents found</p>
+              <p className="text-xs mt-1">Try adjusting the search filters</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -526,28 +526,28 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                 <TableHeader>
                   <TableRow className="border-b border-[#F3F4F6] hover:bg-transparent">
                     <TableHead className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide pl-4 md:pl-5">
-                      Agente
+                      Agent
                     </TableHead>
                     <TableHead className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide">
-                      Estado
+                      Status
                     </TableHead>
                     <TableHead className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide text-center">
                       Prop.
                     </TableHead>
                     <TableHead className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide text-center">
-                      Clientes
+                      Clients
                     </TableHead>
                     <TableHead className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide text-center">
-                      Tratos
+                      Deals
                     </TableHead>
                     <TableHead className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide">
                       Plan
                     </TableHead>
                     <TableHead className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide text-center">
-                      Visitas
+                      Visits
                     </TableHead>
                     <TableHead className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide text-right pr-4 md:pr-5">
-                      Acciones
+                      Actions
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -585,7 +585,7 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                               : 'bg-[#FEF2F2] text-[#DC2626]',
                           )}
                         >
-                          {agent.status === 'active' ? 'Activo' : 'Suspendido'}
+                          {agent.status === 'active' ? 'Active' : 'Suspended'}
                         </Badge>
                       </TableCell>
                       <TableCell className="py-3 text-center text-sm font-medium text-[#374151]">
@@ -643,14 +643,14 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
           {agentsResp && (
             <div className="px-4 md:px-5 py-3 border-t border-[#F3F4F6]">
               <p className="text-xs text-[#9A9A9A]">
-                Mostrando {agents.length} de {agentsResp.totals.total} agentes
+                Showing {agents.length} of {agentsResp.totals.total} agents
                 {' · '}
                 <span className="text-[#2D6A4F] font-medium">
-                  {agentsResp.totals.active} activos
+                  {agentsResp.totals.active} active
                 </span>
                 {' · '}
                 <span className="text-[#DC2626] font-medium">
-                  {agentsResp.totals.suspended} suspendidos
+                  {agentsResp.totals.suspended} suspended
                 </span>
               </p>
             </div>
@@ -670,13 +670,13 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-bold text-[#1B4332]">
               <BarChart3 className="w-4 h-4 inline-block mr-2" />
-              Mejores por Tratos
+              Top by Deals
             </CardTitle>
           </CardHeader>
           <CardContent className="p-4 pt-0">
             {metrics.topAgentsByDeals.length === 0 ? (
               <p className="text-sm text-[#9A9A9A] text-center py-4">
-                Sin datos de tratos cerrados
+                No closed deals data
               </p>
             ) : (
               <div className="space-y-3 max-h-48 overflow-y-auto tower-scroll">
@@ -715,13 +715,13 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-bold text-[#1B4332]">
               <PieChart className="w-4 h-4 inline-block mr-2" />
-              Mejores por Tráfico
+              Top by Traffic
             </CardTitle>
           </CardHeader>
           <CardContent className="p-4 pt-0">
             {metrics.topAgentsByTraffic.length === 0 ? (
               <p className="text-sm text-[#9A9A9A] text-center py-4">
-                Sin datos de visitantes
+                No visitor data
               </p>
             ) : (
               <div className="space-y-3 max-h-48 overflow-y-auto tower-scroll">
@@ -767,13 +767,13 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-bold text-[#1B4332]">
             <Activity className="w-4 h-4 inline-block mr-2" />
-            Actividad Reciente
+            Recent Activity
           </CardTitle>
         </CardHeader>
         <CardContent className="p-4 pt-0">
           {activities.length === 0 ? (
             <p className="text-sm text-[#9A9A9A] text-center py-4">
-              No hay actividad reciente
+              No recent activity
             </p>
           ) : (
             <div className="space-y-1 max-h-96 overflow-y-auto tower-scroll">
@@ -817,7 +817,7 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg font-bold text-[#1B4332]">
                 <Shield className="w-5 h-5 inline-block mr-2" />
-                Planes de Suscripción
+                Subscription Plans
               </CardTitle>
               <Dialog open={newPlanOpen} onOpenChange={setNewPlanOpen}>
                 <DialogTrigger asChild>
@@ -826,26 +826,26 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                     className="bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-xs font-medium"
                   >
                     <Plus className="w-4 h-4 mr-1" />
-                    Nuevo Plan
+                    New Plan
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="bg-white max-w-md">
                   <DialogHeader>
-                    <DialogTitle className="text-[#1B4332]">Crear Nuevo Plan</DialogTitle>
+                    <DialogTitle className="text-[#1B4332]">Create New Plan</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4 mt-2">
                     <div>
-                      <Label className="text-sm font-medium text-[#374151]">Nombre del plan</Label>
+                      <Label className="text-sm font-medium text-[#374151]">Plan name</Label>
                       <Input
                         value={newPlan.name}
                         onChange={(e) => setNewPlan((p) => ({ ...p, name: e.target.value }))}
-                        placeholder="Ej: Profesional"
+                        placeholder="e.g. Professional"
                         className="mt-1 bg-[#F9FAFB] border-[#E5E7EB]"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label className="text-sm font-medium text-[#374151]">Precio (TTD)</Label>
+                        <Label className="text-sm font-medium text-[#374151]">Price (TTD)</Label>
                         <Input
                           type="number"
                           value={newPlan.price}
@@ -855,7 +855,7 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                         />
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-[#374151]">Intervalo</Label>
+                        <Label className="text-sm font-medium text-[#374151]">Interval</Label>
                         <Select
                           value={newPlan.interval}
                           onValueChange={(v) => setNewPlan((p) => ({ ...p, interval: v }))}
@@ -864,15 +864,15 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="monthly">Mensual</SelectItem>
-                            <SelectItem value="yearly">Anual</SelectItem>
+                            <SelectItem value="monthly">Monthly</SelectItem>
+                            <SelectItem value="yearly">Yearly</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label className="text-sm font-medium text-[#374151]">Máx. Propiedades</Label>
+                        <Label className="text-sm font-medium text-[#374151]">Max. Properties</Label>
                         <Input
                           type="number"
                           value={newPlan.maxProperties}
@@ -882,7 +882,7 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                         />
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-[#374151]">Máx. Clientes</Label>
+                        <Label className="text-sm font-medium text-[#374151]">Max. Clients</Label>
                         <Input
                           type="number"
                           value={newPlan.maxClients}
@@ -894,12 +894,12 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-[#374151]">
-                        Características (separadas por coma)
+                        Features (comma-separated)
                       </Label>
                       <Input
                         value={newPlan.features}
                         onChange={(e) => setNewPlan((p) => ({ ...p, features: e.target.value }))}
-                        placeholder="Ej: Portal público, Dominio personalizado"
+                        placeholder="e.g. Public Portal, Custom Domain"
                         className="mt-1 bg-[#F9FAFB] border-[#E5E7EB]"
                       />
                     </div>
@@ -908,7 +908,7 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                       disabled={!newPlan.name}
                       className="w-full bg-[#1B4332] hover:bg-[#2D6A4F] text-white"
                     >
-                      Crear Plan
+                      Create Plan
                     </Button>
                   </div>
                 </DialogContent>
@@ -919,8 +919,8 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
             {!plans || plans.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 text-[#9A9A9A]">
                 <Shield className="w-10 h-10 mb-3 opacity-40" />
-                <p className="text-sm font-medium">No hay planes configurados</p>
-                <p className="text-xs mt-1">Crea tu primer plan de suscripción</p>
+                <p className="text-sm font-medium">No plans configured</p>
+                <p className="text-xs mt-1">Create your first subscription plan</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -940,7 +940,7 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                         <p className="text-lg font-bold text-[#D4A373] mt-0.5">
                           {formatCurrency(plan.price)}
                           <span className="text-xs font-normal text-[#9A9A9A]">
-                            /{plan.interval === 'monthly' ? 'mes' : 'año'}
+                            /{plan.interval === 'monthly' ? 'mo' : 'yr'}
                           </span>
                         </p>
                       </div>
@@ -950,20 +950,20 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                           plan.isActive ? 'bg-[#ECFDF5] text-[#2D6A4F]' : 'bg-[#F3F4F6] text-[#6B7280]',
                         )}
                       >
-                        {plan.isActive ? 'Activo' : 'Inactivo'}
+                        {plan.isActive ? 'Active' : 'Inactive'}
                       </Badge>
                     </div>
                     <div className="space-y-2 mb-4">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-[#6B7280]">Máx. Propiedades</span>
+                        <span className="text-[#6B7280]">Max. Properties</span>
                         <span className="font-semibold text-[#374151]">{plan.maxProperties}</span>
                       </div>
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-[#6B7280]">Máx. Clientes</span>
+                        <span className="text-[#6B7280]">Max. Clients</span>
                         <span className="font-semibold text-[#374151]">{plan.maxClients}</span>
                       </div>
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-[#6B7280]">Suscriptores</span>
+                        <span className="text-[#6B7280]">Subscribers</span>
                         <span className="font-semibold text-[#D4A373]">
                           {plan._count.subscriptions}
                         </span>
@@ -979,7 +979,7 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                         ))}
                         {plan.features.length > 4 && (
                           <p className="text-xs text-[#9A9A9A] pl-3.5">
-                            +{plan.features.length - 4} más...
+                            +{plan.features.length - 4} more...
                           </p>
                         )}
                       </div>
@@ -996,7 +996,7 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                         disabled={!plan.isActive}
                       >
                         <Settings className="w-3.5 h-3.5 mr-1" />
-                        Editar
+                        Edit
                       </Button>
                       <Button
                         variant="outline"
@@ -1009,7 +1009,7 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                         )}
                         onClick={() => togglePlanStatus(plan.id, plan.isActive)}
                       >
-                        {plan.isActive ? 'Desactivar' : 'Activar'}
+                        {plan.isActive ? 'Deactivate' : 'Activate'}
                       </Button>
                     </div>
                   </div>
@@ -1030,7 +1030,7 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
       <Dialog open={agentDetailOpen} onOpenChange={setAgentDetailOpen}>
         <DialogContent className="bg-white max-w-lg max-h-[90vh] overflow-y-auto tower-scroll">
           <DialogHeader>
-            <DialogTitle className="text-[#1B4332] text-lg">Detalle del Agente</DialogTitle>
+            <DialogTitle className="text-[#1B4332] text-lg">Agent Details</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-5 mt-2">
@@ -1058,14 +1058,14 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                   a.status === 'active' ? 'bg-[#ECFDF5] text-[#2D6A4F]' : 'bg-[#FEF2F2] text-[#DC2626]',
                 )}
               >
-                {a.status === 'active' ? 'Activo' : 'Suspendido'}
+                {a.status === 'active' ? 'Active' : 'Suspended'}
               </Badge>
             </div>
 
             {/* Branding colors */}
             <div>
               <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-2">
-                Identidad Visual
+                Visual Identity
               </p>
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
@@ -1073,14 +1073,14 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                     className="w-8 h-8 rounded-lg border border-[#E5E7EB] shadow-sm"
                     style={{ backgroundColor: a.primaryColor || '#1B4332' }}
                   />
-                  <span className="text-xs text-[#6B7280]">Primario</span>
+                  <span className="text-xs text-[#6B7280]">Primary</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div
                     className="w-8 h-8 rounded-lg border border-[#E5E7EB] shadow-sm"
                     style={{ backgroundColor: a.accentColor || '#D4A373' }}
                   />
-                  <span className="text-xs text-[#6B7280]">Acento</span>
+                  <span className="text-xs text-[#6B7280]">Accent</span>
                 </div>
               </div>
             </div>
@@ -1090,7 +1090,7 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
             {/* Contact info */}
             <div>
               <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-2">
-                Información de Contacto
+                Contact Information
               </p>
               <div className="grid grid-cols-1 gap-2">
                 <div className="flex items-center gap-2 text-sm">
@@ -1098,7 +1098,7 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                   <span className="text-[#374151] truncate">{a.email}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-[#9A9A9A] w-16">Teléfono:</span>
+                  <span className="text-[#9A9A9A] w-16">Phone:</span>
                   <span className="text-[#374151]">{a.phone}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
@@ -1106,13 +1106,13 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                   <span className="text-[#374151] font-mono text-xs">{a.slug}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-[#9A9A9A] w-16">Comisión:</span>
+                  <span className="text-[#9A9A9A] w-16">Commission:</span>
                   <span className="text-[#374151]">{a.commissionRate}%</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-[#9A9A9A] w-16">Desde:</span>
+                  <span className="text-[#9A9A9A] w-16">Since:</span>
                   <span className="text-[#374151]">
-                    {new Date(a.createdAt).toLocaleDateString('es-TT', {
+                    {new Date(a.createdAt).toLocaleDateString('en-TT', {
                       year: 'numeric', month: 'short', day: 'numeric',
                     })}
                   </span>
@@ -1125,14 +1125,14 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
             {/* Stats summary */}
             <div>
               <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-3">
-                Resumen de Estadísticas
+                Statistics Summary
               </p>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { label: 'Propiedades', value: a._count.properties, icon: Home, color: '#2D6A4F' },
-                  { label: 'Clientes', value: a._count.clients, icon: Users, color: '#1B4332' },
-                  { label: 'Tratos', value: a._count.deals, icon: TrendingUp, color: '#D4A373' },
-                  { label: 'Visitantes', value: a._count.visitorEvents, icon: Eye, color: '#6B7280' },
+                  { label: 'Properties', value: a._count.properties, icon: Home, color: '#2D6A4F' },
+                  { label: 'Clients', value: a._count.clients, icon: Users, color: '#1B4332' },
+                  { label: 'Deals', value: a._count.deals, icon: TrendingUp, color: '#D4A373' },
+                  { label: 'Visitors', value: a._count.visitorEvents, icon: Eye, color: '#6B7280' },
                 ].map((stat) => {
                   const Icon = stat.icon;
                   return (
@@ -1161,7 +1161,7 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
             {/* Plan info */}
             <div>
               <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-2">
-                Plan Actual
+                Current Plan
               </p>
               <div className="bg-[#F9FAFB] rounded-xl p-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -1170,12 +1170,12 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-[#374151]">
-                      {a.subscription?.plan?.name || 'Sin plan'}
+                      {a.subscription?.plan?.name || 'No plan'}
                     </p>
                     <p className="text-xs text-[#9A9A9A]">
                       {a.subscription?.plan?.price
-                        ? formatCurrency(a.subscription.plan.price) + '/mes'
-                        : 'Gratuito'}
+                        ? formatCurrency(a.subscription.plan.price) + '/mo'
+                        : 'Free'}
                     </p>
                   </div>
                 </div>
@@ -1187,7 +1187,7 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
             {/* Quick actions */}
             <div>
               <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-3">
-                Acciones Rápidas
+                Quick Actions
               </p>
               <div className="flex gap-2">
                 <Button
@@ -1201,14 +1201,14 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                   onClick={() => toggleAgentStatus(a.id, a.status)}
                 >
                   <Shield className="w-4 h-4 mr-2" />
-                  {a.status === 'active' ? 'Suspender' : 'Activar'}
+                  {a.status === 'active' ? 'Suspend' : 'Activate'}
                 </Button>
                 <Button
                   variant="outline"
                   className="flex-1 h-10 border-[#E5E7EB] hover:border-[#D4A373] hover:text-[#D4A373] text-sm"
                 >
                   <Settings className="w-4 h-4 mr-2" />
-                  Cambiar Plan
+                  Change Plan
                 </Button>
               </div>
             </div>
@@ -1228,25 +1228,25 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
             value="overview"
             className="flex-1 text-xs font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:text-[#1B4332] data-[state=active]:shadow-sm"
           >
-            Resumen
+            Overview
           </TabsTrigger>
           <TabsTrigger
             value="agents"
             className="flex-1 text-xs font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:text-[#1B4332] data-[state=active]:shadow-sm"
           >
-            Agentes
+            Agents
           </TabsTrigger>
           <TabsTrigger
             value="activity"
             className="flex-1 text-xs font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:text-[#1B4332] data-[state=active]:shadow-sm"
           >
-            Actividad
+            Activity
           </TabsTrigger>
           <TabsTrigger
             value="plans"
             className="flex-1 text-xs font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:text-[#1B4332] data-[state=active]:shadow-sm"
           >
-            Planes
+            Plans
           </TabsTrigger>
         </TabsList>
 
@@ -1317,10 +1317,10 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
               </div>
               <div>
                 <h1 className="text-xl md:text-2xl font-bold text-[#1B4332] tracking-tight">
-                  Torre de Control
+                  Control Tower
                 </h1>
                 <p className="text-xs text-[#9A9A9A] hidden sm:block">
-                  Panel de administración de PROPOS
+                  PROPOS Admin Panel
                 </p>
               </div>
             </div>
@@ -1331,9 +1331,9 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-[#1B4332] leading-tight">
-                    Administrador
+                    Administrator
                   </p>
-                  <p className="text-[10px] text-[#9A9A9A] leading-tight">Propietario</p>
+                  <p className="text-[10px] text-[#9A9A9A] leading-tight">Owner</p>
                 </div>
               </div>
               <Button
@@ -1343,7 +1343,7 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                 className="text-[#6B7280] hover:text-[#1B4332] hover:bg-[#F3F4F6] h-9"
               >
                 <ArrowUpRight className="w-4 h-4 mr-1 rotate-[-90deg]" />
-                <span className="hidden sm:inline text-xs">Volver</span>
+                <span className="hidden sm:inline text-xs">Back</span>
               </Button>
               <Button
                 variant="ghost"
@@ -1352,7 +1352,7 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
                 className="text-[#DC2626] hover:text-[#DC2626] hover:bg-[#FEF2F2] h-9"
               >
                 <LogOut className="w-4 h-4 mr-1" />
-                <span className="hidden sm:inline text-xs">Salir</span>
+                <span className="hidden sm:inline text-xs">Log out</span>
               </Button>
             </div>
           </div>
@@ -1361,7 +1361,7 @@ export default function ControlTower({ onLogout, onBack }: ControlTowerProps) {
           <div className="mt-4 relative max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9A9A9A]" />
             <Input
-              placeholder="Buscar agente por nombre, email o ciudad..."
+              placeholder="Search agent by name, email, or city..."
               value={agentSearch}
               onChange={(e) => setAgentSearch(e.target.value)}
               className="pl-10 h-10 bg-white border-[#E5E7EB] shadow-sm text-sm focus:border-[#D4A373] focus:ring-[#D4A373]/20"

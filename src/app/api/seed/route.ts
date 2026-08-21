@@ -41,10 +41,10 @@ export async function POST() {
         maxProperties: 5,
         maxClients: 20,
         features: JSON.stringify([
-          'Hasta 5 propiedades',
-          'Hasta 20 clientes',
-          'Perfil de agente básico',
-          'Formulario de consultas',
+          'Up to 5 properties',
+          'Up to 20 clients',
+          'Basic agent profile',
+          'Inquiry form',
         ]),
         isActive: true,
       },
@@ -57,13 +57,13 @@ export async function POST() {
         maxProperties: 25,
         maxClients: 100,
         features: JSON.stringify([
-          'Hasta 25 propiedades',
-          'Hasta 100 clientes',
-          'Perfil de agente personalizado',
-          'Gestión de tratos',
-          'Análisis de visitantes',
-          'Gestión fiscal',
-          'Dominio personalizado',
+          'Up to 25 properties',
+          'Up to 100 clients',
+          'Custom agent profile',
+          'Deal management',
+          'Visitor analytics',
+          'Tax management',
+          'Custom domain',
         ]),
         isActive: true,
       },
@@ -76,16 +76,16 @@ export async function POST() {
         maxProperties: -1,
         maxClients: -1,
         features: JSON.stringify([
-          'Propiedades ilimitadas',
-          'Clientes ilimitados',
-          'Perfil de agente premium',
-          'Gestión avanzada de tratos',
-          'Análisis avanzado de visitantes',
-          'Gestión fiscal completa',
-          'Dominio personalizado',
-          'Soporte prioritario',
-          'Recorridos virtuales',
-          'Integración con redes sociales',
+          'Unlimited properties',
+          'Unlimited clients',
+          'Premium agent profile',
+          'Advanced deal management',
+          'Advanced visitor analytics',
+          'Full tax management',
+          'Custom domain',
+          'Priority support',
+          'Virtual tours',
+          'Social media integration',
         ]),
         isActive: true,
       },
@@ -143,7 +143,7 @@ export async function POST() {
     }
 
     if (!lauraUser) {
-      return NextResponse.json({ error: 'No se pudo crear el usuario del agente' }, { status: 500 });
+      return NextResponse.json({ error: 'Failed to create agent user' }, { status: 500 });
     }
 
     const lauraAgent = await db.agent.findUnique({
@@ -151,16 +151,16 @@ export async function POST() {
     });
 
     if (!lauraAgent) {
-      return NextResponse.json({ error: 'No se pudo crear el perfil del agente' }, { status: 500 });
+      return NextResponse.json({ error: 'Failed to create agent profile' }, { status: 500 });
     }
 
     // ── Properties (6 varied types) ──────────────────────────────────────────
     const propertiesData = [
       {
         agentId: lauraAgent.id,
-        title: 'Apartamento Moderno en Arima Heights',
-        slug: 'apartamento-moderno-arima-heights',
-        description: 'Hermoso apartamento de 2 dormitorios con acabados modernos, cocina americana y balcón con vista a las montañas del Norte. Estacionamiento cubierto incluido.',
+        title: 'Modern Apartment in Arima Heights',
+        slug: 'modern-apartment-arima-heights',
+        description: 'Beautiful 2-bedroom apartment with modern finishes, open-plan kitchen and balcony overlooking the Northern Range. Covered parking included.',
         propertyType: 'apartment',
         listingType: 'sale',
         status: 'available',
@@ -174,16 +174,16 @@ export async function POST() {
         city: 'Arima',
         neighborhood: 'Arima Heights',
         country: 'TT',
-        features: JSON.stringify(['Aire acondicionado', 'Cocina americana', 'Balcón', 'Estacionamiento', 'Agua caliente', 'Ventanas de aluminio']),
+        features: JSON.stringify(['Air conditioning', 'Open-plan kitchen', 'Balcony', 'Parking', 'Hot water', 'Aluminium windows']),
         images: JSON.stringify([]),
         isFeatured: true,
         publishedAt: daysAgo(3),
       },
       {
         agentId: lauraAgent.id,
-        title: 'Casa Familiar en Santa Rosa',
-        slug: 'casa-familiar-santa-rosa',
-        description: 'Amplia casa familiar de 4 dormitorios en una comunidad tranquila de Santa Rosa. Jardín amplio, garaje para 2 vehículos y cercanía a escuelas y comercios.',
+        title: 'Family Home in Santa Rosa',
+        slug: 'family-home-santa-rosa',
+        description: 'Spacious 4-bedroom family home in a quiet Santa Rosa community. Large garden, two-car garage, and close to schools and shops.',
         propertyType: 'house',
         listingType: 'sale',
         status: 'available',
@@ -198,16 +198,16 @@ export async function POST() {
         city: 'Arima',
         neighborhood: 'Santa Rosa',
         country: 'TT',
-        features: JSON.stringify(['Aire acondicionado', 'Garaje', 'Jardín', 'Piscina', 'Seguridad 24h', 'Cocina equipada', 'Área de lavado']),
+        features: JSON.stringify(['Air conditioning', 'Garage', 'Garden', 'Swimming pool', '24-hour security', 'Equipped kitchen', 'Laundry area']),
         images: JSON.stringify([]),
         isFeatured: true,
         publishedAt: daysAgo(7),
       },
       {
         agentId: lauraAgent.id,
-        title: 'Townhouse en Malabar Gardens',
+        title: 'Townhouse in Malabar Gardens',
         slug: 'townhouse-malabar-gardens',
-        description: 'Elegante townhouse de 3 niveles con diseño contemporáneo. Cocina de diseño, baño principal con jacuzzi y terraza en el nivel superior con vista panorámica.',
+        description: 'Elegant 3-level townhouse with contemporary design. Designer kitchen, master bathroom with jacuzzi, and a rooftop terrace with panoramic views.',
         propertyType: 'townhouse',
         listingType: 'sale',
         status: 'pending',
@@ -222,16 +222,16 @@ export async function POST() {
         city: 'Arima',
         neighborhood: 'Malabar',
         country: 'TT',
-        features: JSON.stringify(['Aire acondicionado', 'Jacuzzi', 'Terraza', 'Cocina de diseño', 'Closets empotrados', 'Alarma']),
+        features: JSON.stringify(['Air conditioning', 'Jacuzzi', 'Terrace', 'Designer kitchen', 'Built-in wardrobes', 'Alarm system']),
         images: JSON.stringify([]),
         isFeatured: false,
         publishedAt: daysAgo(10),
       },
       {
         agentId: lauraAgent.id,
-        title: 'Local Comercial en Centro de Arima',
-        slug: 'local-comercial-centro-arima',
-        description: 'Espacio comercial ideal para oficina o tienda en el corazón de Arima. Alta visibilidad y tráfico peatonal. Incluye baño y cocina pequeña.',
+        title: 'Commercial Space in Downtown Arima',
+        slug: 'commercial-space-downtown-arima',
+        description: 'Ideal commercial space for an office or shop in the heart of Arima. High visibility and foot traffic. Includes a bathroom and small kitchen.',
         propertyType: 'commercial',
         listingType: 'rent',
         status: 'rented',
@@ -243,16 +243,16 @@ export async function POST() {
         city: 'Arima',
         neighborhood: 'Centro',
         country: 'TT',
-        features: JSON.stringify(['Aire acondicionado', 'Baño privado', 'Cocina pequeña', 'Estacionamiento de clientes', 'Alarma', 'Acceso discapacitados']),
+        features: JSON.stringify(['Air conditioning', 'Private bathroom', 'Small kitchen', 'Customer parking', 'Alarm system', 'Wheelchair access']),
         images: JSON.stringify([]),
         isFeatured: false,
         publishedAt: daysAgo(20),
       },
       {
         agentId: lauraAgent.id,
-        title: 'Terreno en Tumpuna Road',
-        slug: 'terreno-tumpuna-road',
-        description: 'Terreno plano y llano de 800 m² ideal para construcción residencial. Todos los servicios disponibles: agua, electricidad y drenaje. Ubicado en zona residencial en desarrollo.',
+        title: 'Land on Tumpuna Road',
+        slug: 'land-tumpuna-road',
+        description: 'Flat 800 sqm plot ideal for residential construction. All utilities available: water, electricity and drainage. Located in a developing residential area.',
         propertyType: 'land',
         listingType: 'sale',
         status: 'available',
@@ -263,16 +263,16 @@ export async function POST() {
         city: 'Arima',
         neighborhood: 'Tumpuna',
         country: 'TT',
-        features: JSON.stringify(['Terreno plano', 'Servicios disponibles', 'Escriturado', 'Zona residencial', 'Acceso pavimentado']),
+        features: JSON.stringify(['Flat terrain', 'Utilities available', 'Titled', 'Residential zone', 'Paved access']),
         images: JSON.stringify([]),
         isFeatured: false,
         publishedAt: daysAgo(15),
       },
       {
         agentId: lauraAgent.id,
-        title: 'Villa de Lujo en Hollis Reservoir Road',
-        slug: 'villa-lujo-hollis-reservoir',
-        description: 'Impresionante villa de lujo con 5 dormitorios, piscina infinita y vistas espectaculares al Hollis Reservoir. Acabados de primera calidad, domótica y diseño arquitectónico único.',
+        title: 'Luxury Villa on Hollis Reservoir Road',
+        slug: 'luxury-villa-hollis-reservoir',
+        description: 'Stunning luxury villa with 5 bedrooms, infinity pool and spectacular views of the Hollis Reservoir. Premium finishes, smart home technology and unique architectural design.',
         propertyType: 'villa',
         listingType: 'sale',
         status: 'sold',
@@ -287,7 +287,7 @@ export async function POST() {
         city: 'Arima',
         neighborhood: 'Hollis Reservoir',
         country: 'TT',
-        features: JSON.stringify(['Piscina infinita', 'Domótica', 'Cocina gourmet', 'Vino bodega', 'Cine en casa', 'Gimnasio', 'Jardín paisajístico', 'Seguridad 24h', 'Generador', 'Aire central']),
+        features: JSON.stringify(['Infinity pool', 'Smart home', 'Gourmet kitchen', 'Wine cellar', 'Home cinema', 'Gym', 'Landscaped garden', '24-hour security', 'Generator', 'Central air conditioning']),
         images: JSON.stringify([]),
         isFeatured: false,
         publishedAt: daysAgo(25),
@@ -333,7 +333,7 @@ export async function POST() {
         budgetMax: 2500000,
         preferredType: 'house',
         preferredCity: 'Arima',
-        notes: 'Busca casa familiar cerca de buenas escuelas',
+        notes: 'Looking for a family home near good schools',
         status: 'active',
         lastContactAt: daysAgo(5),
       },
@@ -362,7 +362,7 @@ export async function POST() {
         budgetMax: 5000000,
         preferredType: 'villa',
         preferredCity: 'Arima',
-        notes: 'Interesada en propiedades de lujo con piscina',
+        notes: 'Interested in luxury properties with a pool',
         status: 'inactive',
         lastContactAt: daysAgo(18),
       },
@@ -389,7 +389,7 @@ export async function POST() {
         commission: (villaProp.price ?? 0) * 0.05,
         commissionRate: 5.0,
         closeDate: daysAgo(5),
-        notes: 'Venta exitosa de la villa de lujo. Trato completado con todas las inspecciones aprobadas.',
+        notes: 'Successful sale of the luxury villa. Deal completed with all inspections approved.',
       },
       {
         agentId: lauraAgent.id,
@@ -401,7 +401,7 @@ export async function POST() {
         currency: 'TTD',
         commission: (apartmentProp.price ?? 0) * 0.05,
         commissionRate: 5.0,
-        notes: 'El cliente está gestionando la aprobación del préstamo bancario. Esperando confirmación.',
+        notes: 'Client is processing mortgage approval. Awaiting confirmation.',
       },
     ];
 
@@ -417,35 +417,35 @@ export async function POST() {
       {
         agentId: lauraAgent.id,
         taxType: 'BIR',
-        description: 'Impuesto sobre la Renta - Declaración mensual',
+        description: 'Income Tax - Monthly filing',
         period: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`,
         dueDate: new Date(now.getFullYear(), now.getMonth() + 1, 30),
         amount: 4500,
         currency: 'TTD',
         status: 'pending',
-        notes: 'Declaración mensual del BIR basada en comisiones del mes.',
+        notes: 'Monthly BIR filing based on the month\'s commissions.',
       },
       {
         agentId: lauraAgent.id,
         taxType: 'Property Tax',
-        description: 'Impuesto a la Propiedad - Pago anual',
+        description: 'Property Tax - Annual payment',
         period: String(now.getFullYear()),
         dueDate: new Date(now.getFullYear(), 8, 31),
         amount: 12000,
         currency: 'TTD',
         status: 'pending',
-        notes: 'Impuesto anual sobre las propiedades gestionadas por la agencia.',
+        notes: 'Annual tax on properties managed by the agency.',
       },
       {
         agentId: lauraAgent.id,
         taxType: 'NIS',
-        description: 'Seguro Nacional - Contribución trimestral',
+        description: 'National Insurance - Quarterly contribution',
         period: `Q${Math.ceil((now.getMonth() + 1) / 3)}-${now.getFullYear()}`,
         dueDate: new Date(now.getFullYear(), now.getMonth() + 1, 15),
         amount: 3200,
         currency: 'TTD',
         status: 'pending',
-        notes: 'Contribución trimestral al Seguro Nacional para empleados.',
+        notes: 'Quarterly National Insurance contribution for employees.',
       },
     ];
 
@@ -457,11 +457,11 @@ export async function POST() {
 
     // ── Visitor Events (~50) ─────────────────────────────────────────────────
     const eventTypes = ['page_view', 'click', 'property_view', 'scroll', 'inquiry'];
-    const pages = ['/', '/propiedades', '/sobre-nosotros', '/contacto', '/propiedades/apartamento-moderno-arima-heights', '/propiedades/casa-familiar-santa-rosa', '/propiedades/townhouse-malabar-gardens', '/propiedades/local-comercial-centro-arima', '/propiedades/terreno-tumpuna-road', '/propiedades/villa-lujo-hollis-reservoir'];
+    const pages = ['/', '/properties', '/about-us', '/contact', '/properties/modern-apartment-arima-heights', '/properties/family-home-santa-rosa', '/properties/townhouse-malabar-gardens', '/properties/commercial-space-downtown-arima', '/properties/land-tumpuna-road', '/properties/luxury-villa-hollis-reservoir'];
     const referrers = ['https://www.google.com', 'https://www.facebook.com', 'https://www.instagram.com', 'https://m.search.yahoo.com', null];
     const userAgents = ['Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) Safari/17.5', 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5) Mobile/15E148', 'Mozilla/5.0 (Linux; Android 14) Chrome/126.0 Mobile', 'Mozilla/5.0 (iPad; CPU OS 17_5) AppleWebKit/605.1.15'];
     const eventElements = ['#hero-section', '.property-card', '#contact-form', '.nav-properties', '#cta-button', null];
-    const eventTexts = ['Ver Detalles', 'Contactar', 'Propiedades', 'Sobre Nosotros', null];
+    const eventTexts = ['View Details', 'Contact', 'Properties', 'About Us', null];
     const countries = ['TT', 'TT', 'TT', 'US', 'CA', 'GB'];
     const cities = ['Port of Spain', 'San Fernando', 'Arima', 'Chaguanas', 'New York', 'Toronto', 'London'];
 
@@ -473,8 +473,8 @@ export async function POST() {
       const eventType = randomItem(eventTypes);
       const page = randomItem(pages);
       let propertySlug: string | null = null;
-      if (page.startsWith('/propiedades/') && page !== '/propiedades') {
-        propertySlug = page.replace('/propiedades/', '');
+      if (page.startsWith('/properties/') && page !== '/properties') {
+        propertySlug = page.replace('/properties/', '');
       }
 
       const sessionIdx = Math.floor(Math.random() * sessionIdPrefixes.length);
@@ -547,9 +547,9 @@ export async function POST() {
       },
     });
   } catch (error) {
-    console.error('Error en la siembra de datos:', error);
+    console.error('Error seeding data:', error);
     return NextResponse.json(
-      { error: 'Error interno del servidor al sembrar datos', details: String(error) },
+      { error: 'Internal server error while seeding data', details: String(error) },
       { status: 500 }
     );
   }

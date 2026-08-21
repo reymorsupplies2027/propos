@@ -26,9 +26,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ deals })
   } catch (error) {
-    console.error('Error al listar negocios:', error)
+    console.error('Error listing deals:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       })
       if (!prop) {
         return NextResponse.json(
-          { error: 'Propiedad no encontrada o no pertenece al agente' },
+          { error: 'Property not found or does not belong to the agent' },
           { status: 400 },
         )
       }
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       })
       if (!cl) {
         return NextResponse.json(
-          { error: 'Cliente no encontrado o no pertenece al agente' },
+          { error: 'Client not found or does not belong to the agent' },
           { status: 400 },
         )
       }
@@ -99,9 +99,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ deal }, { status: 201 })
   } catch (error) {
-    console.error('Error al crear negocio:', error)
+    console.error('Error creating deal:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }

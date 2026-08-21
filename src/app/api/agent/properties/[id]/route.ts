@@ -23,16 +23,16 @@ export async function GET(
 
     if (!property) {
       return NextResponse.json(
-        { error: 'Propiedad no encontrada' },
+        { error: 'Property not found' },
         { status: 404 },
       )
     }
 
     return NextResponse.json({ property })
   } catch (error) {
-    console.error('Error al obtener propiedad:', error)
+    console.error('Error fetching property:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }
@@ -55,7 +55,7 @@ export async function PATCH(
     })
     if (!existing) {
       return NextResponse.json(
-        { error: 'Propiedad no encontrada' },
+        { error: 'Property not found' },
         { status: 404 },
       )
     }
@@ -115,9 +115,9 @@ export async function PATCH(
 
     return NextResponse.json({ property })
   } catch (error) {
-    console.error('Error al actualizar propiedad:', error)
+    console.error('Error updating property:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }
@@ -140,18 +140,18 @@ export async function DELETE(
     })
     if (!existing) {
       return NextResponse.json(
-        { error: 'Propiedad no encontrada' },
+        { error: 'Property not found' },
         { status: 404 },
       )
     }
 
     await db.property.delete({ where: { id } })
 
-    return NextResponse.json({ mensaje: 'Propiedad eliminada correctamente' })
+    return NextResponse.json({ message: 'Property deleted successfully' })
   } catch (error) {
-    console.error('Error al eliminar propiedad:', error)
+    console.error('Error deleting property:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }

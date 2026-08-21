@@ -37,9 +37,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ inquiries })
   } catch (error) {
-    console.error('Error al listar consultas:', error)
+    console.error('Error listing inquiries:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }
@@ -57,7 +57,7 @@ export async function PATCH(request: NextRequest) {
 
     if (!id) {
       return NextResponse.json(
-        { error: 'El ID es obligatorio' },
+        { error: 'ID is required' },
         { status: 400 },
       )
     }
@@ -74,7 +74,7 @@ export async function PATCH(request: NextRequest) {
     })
     if (!existing) {
       return NextResponse.json(
-        { error: 'Consulta no encontrada' },
+        { error: 'Inquiry not found' },
         { status: 404 },
       )
     }
@@ -93,9 +93,9 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ inquiry })
   } catch (error) {
-    console.error('Error al actualizar consulta:', error)
+    console.error('Error updating inquiry:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }

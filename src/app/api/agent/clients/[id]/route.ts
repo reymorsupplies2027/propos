@@ -31,16 +31,16 @@ export async function GET(
 
     if (!client) {
       return NextResponse.json(
-        { error: 'Cliente no encontrado' },
+        { error: 'Client not found' },
         { status: 404 },
       )
     }
 
     return NextResponse.json({ client })
   } catch (error) {
-    console.error('Error al obtener cliente:', error)
+    console.error('Error fetching client:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }
@@ -61,7 +61,7 @@ export async function PATCH(
     const existing = await db.client.findFirst({ where: { id, agentId } })
     if (!existing) {
       return NextResponse.json(
-        { error: 'Cliente no encontrado' },
+        { error: 'Client not found' },
         { status: 404 },
       )
     }
@@ -98,9 +98,9 @@ export async function PATCH(
 
     return NextResponse.json({ client })
   } catch (error) {
-    console.error('Error al actualizar cliente:', error)
+    console.error('Error updating client:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }
@@ -121,18 +121,18 @@ export async function DELETE(
     const existing = await db.client.findFirst({ where: { id, agentId } })
     if (!existing) {
       return NextResponse.json(
-        { error: 'Cliente no encontrado' },
+        { error: 'Client not found' },
         { status: 404 },
       )
     }
 
     await db.client.delete({ where: { id } })
 
-    return NextResponse.json({ mensaje: 'Cliente eliminado correctamente' })
+    return NextResponse.json({ message: 'Client deleted successfully' })
   } catch (error) {
-    console.error('Error al eliminar cliente:', error)
+    console.error('Error deleting client:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }

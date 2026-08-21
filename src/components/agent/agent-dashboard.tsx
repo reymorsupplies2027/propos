@@ -96,7 +96,7 @@ interface Inquiry {
 type NavTab = 'panel' | 'propiedades' | 'clientes' | 'tratos' | 'impuestos' | 'analiticas' | 'consultas';
 
 function formatTTD(amount: number): string {
-  return `$${amount.toLocaleString('es-TT')} TTD`;
+  return `$${amount.toLocaleString('en-TT')} TTD`;
 }
 
 function formatRelativeTime(dateStr: string): string {
@@ -104,17 +104,17 @@ function formatRelativeTime(dateStr: string): string {
   const diffMin = Math.floor(diffMs / 60000);
   const diffHr = Math.floor(diffMs / 3600000);
   const diffDay = Math.floor(diffMs / 86400000);
-  if (diffMin < 1) return 'ahora mismo';
-  if (diffMin < 60) return `hace ${diffMin} min`;
-  if (diffHr < 24) return `hace ${diffHr} hora${diffHr > 1 ? 's' : ''}`;
-  if (diffDay === 1) return 'ayer';
-  if (diffDay < 30) return `hace ${diffDay} d\u00edas`;
-  return `hace ${Math.floor(diffDay / 30)} mes(es)`;
+  if (diffMin < 1) return 'just now';
+  if (diffMin < 60) return `${diffMin} min ago`;
+  if (diffHr < 24) return `${diffHr} hour${diffHr > 1 ? 's' : ''} ago`;
+  if (diffDay === 1) return 'yesterday';
+  if (diffDay < 30) return `${diffDay} day${diffDay > 1 ? 's' : ''} ago`;
+  return `${Math.floor(diffDay / 30)} month(s) ago`;
 }
 
 function getDayName(dateStr: string): string {
   const d = new Date(dateStr + 'T00:00:00');
-  return ['Dom', 'Lun', 'Mar', 'Mi\u00e9', 'Jue', 'Vie', 'S\u00e1b'][d.getDay()];
+  return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()];
 }
 
 function isOverdue(dateStr: string): boolean {
@@ -272,46 +272,46 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
   });
 
   const navItems: { key: NavTab; label: string; icon: React.ReactNode }[] = [
-    { key: 'panel', label: 'Panel Principal', icon: <LayoutDashboard size={20} /> },
-    { key: 'propiedades', label: 'Propiedades', icon: <Building2 size={20} /> },
-    { key: 'clientes', label: 'Clientes', icon: <Users size={20} /> },
-    { key: 'tratos', label: 'Tratos', icon: <Briefcase size={20} /> },
-    { key: 'impuestos', label: 'Impuestos', icon: <Receipt size={20} /> },
-    { key: 'analiticas', label: 'Anal\u00edticas', icon: <BarChart3 size={20} /> },
-    { key: 'consultas', label: 'Consultas', icon: <Mail size={20} /> },
+    { key: 'panel', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+    { key: 'propiedades', label: 'Properties', icon: <Building2 size={20} /> },
+    { key: 'clientes', label: 'Clients', icon: <Users size={20} /> },
+    { key: 'tratos', label: 'Deals', icon: <Briefcase size={20} /> },
+    { key: 'impuestos', label: 'Taxes', icon: <Receipt size={20} /> },
+    { key: 'analiticas', label: 'Analytics', icon: <BarChart3 size={20} /> },
+    { key: 'consultas', label: 'Inquiries', icon: <Mail size={20} /> },
   ];
 
   const pageTitles: Record<NavTab, string> = {
-    panel: 'Panel Principal', propiedades: 'Propiedades', clientes: 'Clientes',
-    tratos: 'Tratos', impuestos: 'Impuestos', analiticas: 'Anal\u00edticas', consultas: 'Consultas',
+    panel: 'Dashboard', propiedades: 'Properties', clientes: 'Clients',
+    tratos: 'Deals', impuestos: 'Taxes', analiticas: 'Analytics', consultas: 'Inquiries',
   };
 
   function statusBadge(status: string, type: 'property' | 'deal' | 'tax') {
     const maps: Record<string, Record<string, { label: string; cls: string }>> = {
       property: {
-        disponible: { label: 'Disponible', cls: 'bg-emerald-100 text-emerald-800' },
-        available: { label: 'Disponible', cls: 'bg-emerald-100 text-emerald-800' },
-        pendiente: { label: 'Pendiente', cls: 'bg-amber-100 text-amber-800' },
-        pending: { label: 'Pendiente', cls: 'bg-amber-100 text-amber-800' },
-        vendida: { label: 'Vendida', cls: 'bg-sky-100 text-sky-800' },
-        sold: { label: 'Vendida', cls: 'bg-sky-100 text-sky-800' },
-        alquilada: { label: 'Alquilada', cls: 'bg-teal-100 text-teal-800' },
-        rented: { label: 'Alquilada', cls: 'bg-teal-100 text-teal-800' },
+        disponible: { label: 'Available', cls: 'bg-emerald-100 text-emerald-800' },
+        available: { label: 'Available', cls: 'bg-emerald-100 text-emerald-800' },
+        pendiente: { label: 'Pending', cls: 'bg-amber-100 text-amber-800' },
+        pending: { label: 'Pending', cls: 'bg-amber-100 text-amber-800' },
+        vendida: { label: 'Sold', cls: 'bg-sky-100 text-sky-800' },
+        sold: { label: 'Sold', cls: 'bg-sky-100 text-sky-800' },
+        alquilada: { label: 'Rented', cls: 'bg-teal-100 text-teal-800' },
+        rented: { label: 'Rented', cls: 'bg-teal-100 text-teal-800' },
       },
       deal: {
-        pendiente: { label: 'Pendiente', cls: 'bg-amber-100 text-amber-800' },
-        pending: { label: 'Pendiente', cls: 'bg-amber-100 text-amber-800' },
-        cerrado: { label: 'Cerrado', cls: 'bg-emerald-100 text-emerald-800' },
-        closed: { label: 'Cerrado', cls: 'bg-emerald-100 text-emerald-800' },
-        cancelado: { label: 'Cancelado', cls: 'bg-red-100 text-red-800' },
+        pendiente: { label: 'Pending', cls: 'bg-amber-100 text-amber-800' },
+        pending: { label: 'Pending', cls: 'bg-amber-100 text-amber-800' },
+        cerrado: { label: 'Closed', cls: 'bg-emerald-100 text-emerald-800' },
+        closed: { label: 'Closed', cls: 'bg-emerald-100 text-emerald-800' },
+        cancelado: { label: 'Cancelled', cls: 'bg-red-100 text-red-800' },
       },
       tax: {
-        pendiente: { label: 'Pendiente', cls: 'bg-amber-100 text-amber-800' },
-        pending: { label: 'Pendiente', cls: 'bg-amber-100 text-amber-800' },
-        pagado: { label: 'Pagado', cls: 'bg-emerald-100 text-emerald-800' },
-        paid: { label: 'Pagado', cls: 'bg-emerald-100 text-emerald-800' },
-        vencido: { label: 'Vencido', cls: 'bg-red-100 text-red-800' },
-        overdue: { label: 'Vencido', cls: 'bg-red-100 text-red-800' },
+        pendiente: { label: 'Pending', cls: 'bg-amber-100 text-amber-800' },
+        pending: { label: 'Pending', cls: 'bg-amber-100 text-amber-800' },
+        pagado: { label: 'Paid', cls: 'bg-emerald-100 text-emerald-800' },
+        paid: { label: 'Paid', cls: 'bg-emerald-100 text-emerald-800' },
+        vencido: { label: 'Overdue', cls: 'bg-red-100 text-red-800' },
+        overdue: { label: 'Overdue', cls: 'bg-red-100 text-red-800' },
       },
     };
     const s = maps[type]?.[status] || { label: status, cls: 'bg-gray-100 text-gray-800' };
@@ -349,47 +349,47 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
         <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin">
           <Card className="min-w-[180px] flex-shrink-0">
             <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-1"><Building2 size={16} className="text-emerald-600" /><span className="text-xs text-gray-500">Propiedades Activas</span></div>
+              <div className="flex items-center gap-2 mb-1"><Building2 size={16} className="text-emerald-600" /><span className="text-xs text-gray-500">Active Properties</span></div>
               <p className="text-2xl font-bold" style={{ color: brand }}>{activeProperties}</p>
-              <div className="flex items-center gap-1 text-xs text-emerald-600"><ArrowUpRight size={12} /> en línea</div>
+              <div className="flex items-center gap-1 text-xs text-emerald-600"><ArrowUpRight size={12} /> online</div>
             </CardContent>
           </Card>
           <Card className="min-w-[180px] flex-shrink-0">
             <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-1"><Mail size={16} className="text-amber-600" /><span className="text-xs text-gray-500">Nuevas Consultas</span></div>
+              <div className="flex items-center gap-2 mb-1"><Mail size={16} className="text-amber-600" /><span className="text-xs text-gray-500">New Inquiries</span></div>
               <p className="text-2xl font-bold text-amber-600">{newInquiries}</p>
-              <div className="flex items-center gap-1 text-xs text-amber-600"><BellRing size={12} /> sin leer</div>
+              <div className="flex items-center gap-1 text-xs text-amber-600"><BellRing size={12} /> unread</div>
             </CardContent>
           </Card>
           <Card className="min-w-[180px] flex-shrink-0">
             <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-1"><Briefcase size={16} className="text-orange-600" /><span className="text-xs text-gray-500">Tratos Pendientes</span></div>
+              <div className="flex items-center gap-2 mb-1"><Briefcase size={16} className="text-orange-600" /><span className="text-xs text-gray-500">Pending Deals</span></div>
               <p className="text-2xl font-bold text-orange-600">{pendingDeals}</p>
-              <div className="flex items-center gap-1 text-xs text-orange-500"><Clock size={12} /> en proceso</div>
+              <div className="flex items-center gap-1 text-xs text-orange-500"><Clock size={12} /> in progress</div>
             </CardContent>
           </Card>
           <Card className="min-w-[180px] flex-shrink-0">
             <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-1"><Eye size={16} className="text-teal-600" /><span className="text-xs text-gray-500">Visitantes (7d)</span></div>
+              <div className="flex items-center gap-2 mb-1"><Eye size={16} className="text-teal-600" /><span className="text-xs text-gray-500">Visitors (7d)</span></div>
               <p className="text-2xl font-bold text-teal-600">{visitors7d}</p>
-              <div className="flex items-center gap-1 text-xs text-teal-600"><TrendingUp size={12} /> esta semana</div>
+              <div className="flex items-center gap-1 text-xs text-teal-600"><TrendingUp size={12} /> this week</div>
             </CardContent>
           </Card>
           <Card className="min-w-[180px] flex-shrink-0">
             <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-1"><TrendingUp size={16} style={{ color: accent }} /><span className="text-xs text-gray-500">Tasa de Conversión</span></div>
+              <div className="flex items-center gap-2 mb-1"><TrendingUp size={16} style={{ color: accent }} /><span className="text-xs text-gray-500">Conversion Rate</span></div>
               <p className="text-2xl font-bold" style={{ color: accent }}>{conversionRate.toFixed(1)}%</p>
-              <div className="flex items-center gap-1 text-xs text-gray-500"><PieChart size={12} /> consultas → tratos</div>
+              <div className="flex items-center gap-1 text-xs text-gray-500"><PieChart size={12} /> inquiries → deals</div>
             </CardContent>
           </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card className="lg:col-span-2">
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold text-gray-700">Visitas Diarias (últimos 7 días)</CardTitle></CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold text-gray-700">Daily Visits (last 7 days)</CardTitle></CardHeader>
             <CardContent className="p-4">
               {dailyVisits.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-8">No hay datos de visitas aún</p>
+                <p className="text-sm text-gray-400 text-center py-8">No visit data yet</p>
               ) : (
                 <div className="flex items-end gap-2 h-48">
                   {dailyVisits.map(d => (
@@ -406,13 +406,13 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
           <Card>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-semibold text-gray-700">Consultas Recientes</CardTitle>
-                <button onClick={() => setActiveTab('consultas')} className="text-xs font-medium hover:underline" style={{ color: accent }}>Ver todas</button>
+                <CardTitle className="text-sm font-semibold text-gray-700">Recent Inquiries</CardTitle>
+                <button onClick={() => setActiveTab('consultas')} className="text-xs font-medium hover:underline" style={{ color: accent }}>View all</button>
               </div>
             </CardHeader>
             <CardContent className="p-4 space-y-3 max-h-48 overflow-y-auto scrollbar-thin">
               {recentInq.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-4">No hay consultas recientes</p>
+                <p className="text-sm text-gray-400 text-center py-4">No recent inquiries</p>
               ) : (
                 recentInq.map(inq => (
                   <div key={inq.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer" onClick={() => { setActiveTab('consultas'); setExpandedInquiry(inq.id); }}>
@@ -422,7 +422,7 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-800 truncate">{inq.name}</p>
-                      <p className="text-xs text-gray-500 truncate">{inq.property?.title || 'Sin propiedad'}</p>
+                      <p className="text-xs text-gray-500 truncate">{inq.property?.title || 'No property'}</p>
                       <p className="text-xs text-gray-400 mt-0.5">{formatRelativeTime(inq.createdAt)}</p>
                     </div>
                   </div>
@@ -434,10 +434,10 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold text-gray-700">Propiedades Más Vistas</CardTitle></CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold text-gray-700">Most Viewed Properties</CardTitle></CardHeader>
             <CardContent className="p-4 space-y-3">
               {topProps.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-4">No hay datos aún</p>
+                <p className="text-sm text-gray-400 text-center py-4">No data yet</p>
               ) : (
                 topProps.slice(0, 5).map((p, idx) => (
                   <div key={p.propertySlug} className="flex items-center gap-3">
@@ -453,11 +453,11 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
             </CardContent>
           </Card>
           <Card>
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold text-gray-700">Acciones Rápidas</CardTitle></CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold text-gray-700">Quick Actions</CardTitle></CardHeader>
             <CardContent className="p-4 space-y-3">
-              <Button className="w-full justify-start gap-3 text-sm" style={{ backgroundColor: brand }} onClick={() => { setActiveTab('propiedades'); setTimeout(() => setPropertyDialogOpen(true), 100); }}><Plus size={16} /> Nueva Propiedad</Button>
-              <Button className="w-full justify-start gap-3 text-sm" variant="outline" onClick={() => { setActiveTab('clientes'); setTimeout(() => setClientDialogOpen(true), 100); }}><Plus size={16} /> Nuevo Cliente</Button>
-              <Button className="w-full justify-start gap-3 text-sm" variant="outline" onClick={() => window.open(`/${agent.slug}`, '_blank')}><ExternalLink size={16} /> Ver Portal Público</Button>
+              <Button className="w-full justify-start gap-3 text-sm" style={{ backgroundColor: brand }} onClick={() => { setActiveTab('propiedades'); setTimeout(() => setPropertyDialogOpen(true), 100); }}><Plus size={16} /> New Property</Button>
+              <Button className="w-full justify-start gap-3 text-sm" variant="outline" onClick={() => { setActiveTab('clientes'); setTimeout(() => setClientDialogOpen(true), 100); }}><Plus size={16} /> New Client</Button>
+              <Button className="w-full justify-start gap-3 text-sm" variant="outline" onClick={() => window.open(`/${agent.slug}`, '_blank')}><ExternalLink size={16} /> View Public Portal</Button>
             </CardContent>
           </Card>
         </div>
@@ -472,38 +472,38 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
         <div className="relative flex-1 w-full">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <Input placeholder="Buscar propiedades..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9" />
+          <Input placeholder="Search properties..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9" />
         </div>
         <div className="flex gap-2 flex-wrap">
           <Select value={propertyStatus} onValueChange={setPropertyStatus}>
-            <SelectTrigger className="w-[130px] h-9 text-xs"><SelectValue placeholder="Estado" /></SelectTrigger>
+            <SelectTrigger className="w-[130px] h-9 text-xs"><SelectValue placeholder="Status" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              <SelectItem value="disponible">Disponible</SelectItem>
-              <SelectItem value="pendiente">Pendiente</SelectItem>
-              <SelectItem value="vendida">Vendida</SelectItem>
-              <SelectItem value="alquilada">Alquilada</SelectItem>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="disponible">Available</SelectItem>
+              <SelectItem value="pendiente">Pending</SelectItem>
+              <SelectItem value="vendida">Sold</SelectItem>
+              <SelectItem value="alquilada">Rented</SelectItem>
             </SelectContent>
           </Select>
           <Select value={propertyType} onValueChange={setPropertyType}>
-            <SelectTrigger className="w-[130px] h-9 text-xs"><SelectValue placeholder="Tipo" /></SelectTrigger>
+            <SelectTrigger className="w-[130px] h-9 text-xs"><SelectValue placeholder="Type" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos</SelectItem><SelectItem value="casa">Casa</SelectItem><SelectItem value="apartamento">Apartamento</SelectItem><SelectItem value="terreno">Terreno</SelectItem><SelectItem value="comercial">Comercial</SelectItem>
+              <SelectItem value="all">All</SelectItem><SelectItem value="casa">House</SelectItem><SelectItem value="apartamento">Apartment</SelectItem><SelectItem value="terreno">Land</SelectItem><SelectItem value="comercial">Commercial</SelectItem>
             </SelectContent>
           </Select>
           <Select value={listingType} onValueChange={setListingType}>
-            <SelectTrigger className="w-[130px] h-9 text-xs"><SelectValue placeholder="Lista" /></SelectTrigger>
+            <SelectTrigger className="w-[130px] h-9 text-xs"><SelectValue placeholder="Listing" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos</SelectItem><SelectItem value="sale">Venta</SelectItem><SelectItem value="rent">Renta</SelectItem>
+              <SelectItem value="all">All</SelectItem><SelectItem value="sale">Sale</SelectItem><SelectItem value="rent">Rent</SelectItem>
             </SelectContent>
           </Select>
         </div>
-        <Button size="sm" style={{ backgroundColor: brand }} onClick={() => setPropertyDialogOpen(true)} className="whitespace-nowrap"><Plus size={16} className="mr-1" /> Nueva Propiedad</Button>
+        <Button size="sm" style={{ backgroundColor: brand }} onClick={() => setPropertyDialogOpen(true)} className="whitespace-nowrap"><Plus size={16} className="mr-1" /> New Property</Button>
       </div>
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">{Array.from({ length: 4 }).map((_, i) => (<Card key={i}><Skeleton className="h-40 rounded-t-lg" /><CardContent className="p-4 space-y-2"><Skeleton className="h-5 w-3/4" /><Skeleton className="h-4 w-1/2" /><Skeleton className="h-4 w-1/3" /></CardContent></Card>))}</div>
       ) : filteredProperties.length === 0 ? (
-        <Card className="py-16 text-center"><Home size={40} className="mx-auto text-gray-300 mb-3" /><p className="text-gray-500 font-medium">No se encontraron propiedades</p><p className="text-sm text-gray-400 mt-1">Crea tu primera propiedad para comenzar</p></Card>
+        <Card className="py-16 text-center"><Home size={40} className="mx-auto text-gray-300 mb-3" /><p className="text-gray-500 font-medium">No properties found</p><p className="text-sm text-gray-400 mt-1">Create your first property to get started</p></Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredProperties.map(prop => (
@@ -511,20 +511,20 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
               <div className="relative h-40 bg-gray-100 flex items-center justify-center">
                 {prop.images && prop.images.length > 0 ? (<img src={prop.images[0]} alt={prop.title} className="w-full h-full object-cover" />) : (<Home size={32} className="text-gray-300" />)}
                 <div className="absolute top-2 left-2">{statusBadge(prop.status, 'property')}</div>
-                {prop.isFeatured && (<div className="absolute top-2 right-2"><Badge className="bg-amber-500 text-white text-xs"><Heart size={10} className="mr-1" /> Destacada</Badge></div>)}
+                {prop.isFeatured && (<div className="absolute top-2 right-2"><Badge className="bg-amber-500 text-white text-xs"><Heart size={10} className="mr-1" /> Featured</Badge></div>)}
               </div>
               <CardContent className="p-4">
                 <h3 className="font-semibold text-gray-800 truncate">{prop.title}</h3>
                 <div className="flex items-center gap-1 text-xs text-gray-500 mt-1"><MapPin size={12} /><span className="truncate">{prop.neighborhood}, {prop.city}</span></div>
                 <p className="text-lg font-bold mt-2" style={{ color: brand }}>{formatTTD(prop.price)}</p>
                 <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                  <span className="flex items-center gap-1"><Building2 size={14} /> {prop.bedrooms} hab.</span>
-                  <span className="flex items-center gap-1"><DollarSign size={14} /> {prop.bathrooms} baños</span>
+                  <span className="flex items-center gap-1"><Building2 size={14} /> {prop.bedrooms} beds</span>
+                  <span className="flex items-center gap-1"><DollarSign size={14} /> {prop.bathrooms} baths</span>
                   <span className="flex items-center gap-1"><Globe size={14} /> {prop.areaSqm} m²</span>
                 </div>
                 <Separator className="my-3" />
                 <div className="flex items-center justify-between">
-                  <Badge variant="secondary" className="text-xs"><Mail size={10} className="mr-1" />{prop._count?.inquiries || 0} consultas</Badge>
+                  <Badge variant="secondary" className="text-xs"><Mail size={10} className="mr-1" />{prop._count?.inquiries || 0} inquiries</Badge>
                   <div className="flex items-center gap-1">
                     <Button variant="ghost" size="sm" className="h-7 text-xs text-gray-500 hover:text-gray-700"><Share2 size={14} /></Button>
                     <Button variant="ghost" size="sm" className="h-7 text-xs text-gray-500 hover:text-red-600"><XCircle size={14} /></Button>
@@ -538,30 +538,30 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
 
       <Dialog open={propertyDialogOpen} onOpenChange={setPropertyDialogOpen}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>Nueva Propiedad</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>New Property</DialogTitle></DialogHeader>
           <div className="space-y-4">
-            <div className="space-y-2"><Label>Título</Label><Input value={newProperty.title} onChange={e => setNewProperty({ ...newProperty, title: e.target.value })} placeholder="Ej: Casa moderna en Maraval" /></div>
-            <div className="space-y-2"><Label>Descripción</Label><Textarea value={newProperty.description} onChange={e => setNewProperty({ ...newProperty, description: e.target.value })} placeholder="Describe la propiedad..." rows={3} /></div>
+            <div className="space-y-2"><Label>Title</Label><Input value={newProperty.title} onChange={e => setNewProperty({ ...newProperty, title: e.target.value })} placeholder="e.g. Modern house in Maraval" /></div>
+            <div className="space-y-2"><Label>Description</Label><Textarea value={newProperty.description} onChange={e => setNewProperty({ ...newProperty, description: e.target.value })} placeholder="Describe the property..." rows={3} /></div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2"><Label>Tipo de Propiedad</Label><Select value={newProperty.propertyType} onValueChange={v => setNewProperty({ ...newProperty, propertyType: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="casa">Casa</SelectItem><SelectItem value="apartamento">Apartamento</SelectItem><SelectItem value="terreno">Terreno</SelectItem><SelectItem value="comercial">Comercial</SelectItem></SelectContent></Select></div>
-              <div className="space-y-2"><Label>Tipo de Lista</Label><Select value={newProperty.listingType} onValueChange={v => setNewProperty({ ...newProperty, listingType: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="sale">Venta</SelectItem><SelectItem value="rent">Renta</SelectItem></SelectContent></Select></div>
+              <div className="space-y-2"><Label>Property Type</Label><Select value={newProperty.propertyType} onValueChange={v => setNewProperty({ ...newProperty, propertyType: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="casa">House</SelectItem><SelectItem value="apartamento">Apartment</SelectItem><SelectItem value="terreno">Land</SelectItem><SelectItem value="comercial">Commercial</SelectItem></SelectContent></Select></div>
+              <div className="space-y-2"><Label>Listing Type</Label><Select value={newProperty.listingType} onValueChange={v => setNewProperty({ ...newProperty, listingType: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="sale">Sale</SelectItem><SelectItem value="rent">Rent</SelectItem></SelectContent></Select></div>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2"><Label>Precio (TTD)</Label><Input type="number" value={newProperty.price} onChange={e => setNewProperty({ ...newProperty, price: e.target.value })} placeholder="850000" /></div>
-              <div className="space-y-2"><Label>Área (m²)</Label><Input type="number" value={newProperty.areaSqm} onChange={e => setNewProperty({ ...newProperty, areaSqm: e.target.value })} placeholder="200" /></div>
+              <div className="space-y-2"><Label>Price (TTD)</Label><Input type="number" value={newProperty.price} onChange={e => setNewProperty({ ...newProperty, price: e.target.value })} placeholder="850000" /></div>
+              <div className="space-y-2"><Label>Area (m²)</Label><Input type="number" value={newProperty.areaSqm} onChange={e => setNewProperty({ ...newProperty, areaSqm: e.target.value })} placeholder="200" /></div>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2"><Label>Habitaciones</Label><Input type="number" value={newProperty.bedrooms} onChange={e => setNewProperty({ ...newProperty, bedrooms: e.target.value })} placeholder="3" /></div>
-              <div className="space-y-2"><Label>Baños</Label><Input type="number" value={newProperty.bathrooms} onChange={e => setNewProperty({ ...newProperty, bathrooms: e.target.value })} placeholder="2" /></div>
+              <div className="space-y-2"><Label>Bedrooms</Label><Input type="number" value={newProperty.bedrooms} onChange={e => setNewProperty({ ...newProperty, bedrooms: e.target.value })} placeholder="3" /></div>
+              <div className="space-y-2"><Label>Bathrooms</Label><Input type="number" value={newProperty.bathrooms} onChange={e => setNewProperty({ ...newProperty, bathrooms: e.target.value })} placeholder="2" /></div>
             </div>
-            <div className="space-y-2"><Label>Dirección</Label><Input value={newProperty.address} onChange={e => setNewProperty({ ...newProperty, address: e.target.value })} placeholder="12 Calle Principal" /></div>
+            <div className="space-y-2"><Label>Address</Label><Input value={newProperty.address} onChange={e => setNewProperty({ ...newProperty, address: e.target.value })} placeholder="12 Main Street" /></div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2"><Label>Ciudad</Label><Input value={newProperty.city} onChange={e => setNewProperty({ ...newProperty, city: e.target.value })} placeholder="Port of Spain" /></div>
-              <div className="space-y-2"><Label>Barrio</Label><Input value={newProperty.neighborhood} onChange={e => setNewProperty({ ...newProperty, neighborhood: e.target.value })} placeholder="Maraval" /></div>
+              <div className="space-y-2"><Label>City</Label><Input value={newProperty.city} onChange={e => setNewProperty({ ...newProperty, city: e.target.value })} placeholder="Port of Spain" /></div>
+              <div className="space-y-2"><Label>Neighborhood</Label><Input value={newProperty.neighborhood} onChange={e => setNewProperty({ ...newProperty, neighborhood: e.target.value })} placeholder="Maraval" /></div>
             </div>
-            <div className="space-y-2"><Label>Características (separadas por coma)</Label><Input value={newProperty.features} onChange={e => setNewProperty({ ...newProperty, features: e.target.value })} placeholder="piscina, estacionamiento, jardín" /></div>
-            <div className="flex items-center gap-2"><Checkbox checked={newProperty.isFeatured} onCheckedChange={c => setNewProperty({ ...newProperty, isFeatured: c === true })} /><Label className="text-sm">Marcar como destacada</Label></div>
-            <Button className="w-full" style={{ backgroundColor: brand }} onClick={handleCreateProperty} disabled={!newProperty.title || !newProperty.price}>Crear Propiedad</Button>
+            <div className="space-y-2"><Label>Features (comma separated)</Label><Input value={newProperty.features} onChange={e => setNewProperty({ ...newProperty, features: e.target.value })} placeholder="pool, parking, garden" /></div>
+            <div className="flex items-center gap-2"><Checkbox checked={newProperty.isFeatured} onCheckedChange={c => setNewProperty({ ...newProperty, isFeatured: c === true })} /><Label className="text-sm">Mark as featured</Label></div>
+            <Button className="w-full" style={{ backgroundColor: brand }} onClick={handleCreateProperty} disabled={!newProperty.title || !newProperty.price}>Create Property</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -575,24 +575,24 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
         <div className="relative flex-1 w-full">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <Input placeholder="Buscar clientes..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9" />
+          <Input placeholder="Search clients..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9" />
         </div>
         <Select value={clientStatus} onValueChange={setClientStatus}>
-          <SelectTrigger className="w-[130px] h-9 text-xs"><SelectValue placeholder="Estado" /></SelectTrigger>
-          <SelectContent><SelectItem value="all">Todos</SelectItem><SelectItem value="activo">Activo</SelectItem><SelectItem value="inactivo">Inactivo</SelectItem><SelectItem value="nuevo">Nuevo</SelectItem></SelectContent>
+          <SelectTrigger className="w-[130px] h-9 text-xs"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectContent><SelectItem value="all">All</SelectItem><SelectItem value="activo">Active</SelectItem><SelectItem value="inactivo">Inactive</SelectItem><SelectItem value="nuevo">New</SelectItem></SelectContent>
         </Select>
-        <Button size="sm" style={{ backgroundColor: brand }} onClick={() => setClientDialogOpen(true)} className="whitespace-nowrap"><Plus size={16} className="mr-1" /> Nuevo Cliente</Button>
+        <Button size="sm" style={{ backgroundColor: brand }} onClick={() => setClientDialogOpen(true)} className="whitespace-nowrap"><Plus size={16} className="mr-1" /> New Client</Button>
       </div>
       {loading ? (
         <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => (<Card key={i}><CardContent className="p-4 flex items-center gap-4"><Skeleton className="h-10 w-10 rounded-full" /><div className="flex-1 space-y-2"><Skeleton className="h-4 w-32" /><Skeleton className="h-3 w-48" /></div></CardContent></Card>))}</div>
       ) : filteredClients.length === 0 ? (
-        <Card className="py-16 text-center"><Users size={40} className="mx-auto text-gray-300 mb-3" /><p className="text-gray-500 font-medium">No se encontraron clientes</p><p className="text-sm text-gray-400 mt-1">Agrega tu primer cliente para comenzar</p></Card>
+        <Card className="py-16 text-center"><Users size={40} className="mx-auto text-gray-300 mb-3" /><p className="text-gray-500 font-medium">No clients found</p><p className="text-sm text-gray-400 mt-1">Add your first client to get started</p></Card>
       ) : (
         <>
           <div className="hidden md:block">
             <Card>
               <Table>
-                <TableHeader><TableRow><TableHead>Nombre</TableHead><TableHead>Email</TableHead><TableHead>Teléfono</TableHead><TableHead>Fuente</TableHead><TableHead>Estado</TableHead><TableHead>Último Contacto</TableHead><TableHead className="text-right">Consultas / Tratos</TableHead></TableRow></TableHeader>
+                <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Email</TableHead><TableHead>Phone</TableHead><TableHead>Source</TableHead><TableHead>Status</TableHead><TableHead>Last Contact</TableHead><TableHead className="text-right">Inquiries / Deals</TableHead></TableRow></TableHeader>
                 <TableBody>
                   {filteredClients.map(c => (
                     <TableRow key={c.id}>
@@ -601,7 +601,7 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
                       <TableCell className="text-gray-500 text-sm">{c.phone}</TableCell>
                       <TableCell><Badge variant="outline" className="text-xs capitalize">{c.source}</Badge></TableCell>
                       <TableCell><Badge className={cn('text-xs capitalize', c.status === 'activo' ? 'bg-emerald-100 text-emerald-800' : c.status === 'nuevo' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-800')}>{c.status}</Badge></TableCell>
-                      <TableCell className="text-sm text-gray-500">{c.lastContactAt ? formatRelativeTime(c.lastContactAt) : 'Nunca'}</TableCell>
+                      <TableCell className="text-sm text-gray-500">{c.lastContactAt ? formatRelativeTime(c.lastContactAt) : 'Never'}</TableCell>
                       <TableCell className="text-right text-sm"><span className="font-medium">{c._count?.inquiries || 0}</span>{' / '}<span className="font-medium">{c._count?.deals || 0}</span></TableCell>
                     </TableRow>
                   ))}
@@ -619,25 +619,25 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
                 </div>
                 <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-gray-500">
                   <span className="flex items-center gap-1"><Phone size={12} /> {c.phone}</span>
-                  <span className="flex items-center gap-1"><Clock size={12} /> {c.lastContactAt ? formatRelativeTime(c.lastContactAt) : 'Nunca'}</span>
+                  <span className="flex items-center gap-1"><Clock size={12} /> {c.lastContactAt ? formatRelativeTime(c.lastContactAt) : 'Never'}</span>
                 </div>
-                <div className="mt-2 flex gap-2 text-xs"><Badge variant="secondary">{c._count?.inquiries || 0} consultas</Badge><Badge variant="secondary">{c._count?.deals || 0} tratos</Badge><Badge variant="outline" className="capitalize">{c.source}</Badge></div>
+                <div className="mt-2 flex gap-2 text-xs"><Badge variant="secondary">{c._count?.inquiries || 0} inquiries</Badge><Badge variant="secondary">{c._count?.deals || 0} deals</Badge><Badge variant="outline" className="capitalize">{c.source}</Badge></div>
               </CardContent></Card>
             ))}
           </div>
         </>
       )}
       <Dialog open={clientDialogOpen} onOpenChange={setClientDialogOpen}>
-        <DialogContent className="max-w-md"><DialogHeader><DialogTitle>Nuevo Cliente</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-md"><DialogHeader><DialogTitle>New Client</DialogTitle></DialogHeader>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2"><Label>Nombre</Label><Input value={newClient.firstName} onChange={e => setNewClient({ ...newClient, firstName: e.target.value })} placeholder="Juan" /></div>
-            <div className="space-y-2"><Label>Apellido</Label><Input value={newClient.lastName} onChange={e => setNewClient({ ...newClient, lastName: e.target.value })} placeholder="Pérez" /></div>
+            <div className="space-y-2"><Label>First Name</Label><Input value={newClient.firstName} onChange={e => setNewClient({ ...newClient, firstName: e.target.value })} placeholder="John" /></div>
+            <div className="space-y-2"><Label>Last Name</Label><Input value={newClient.lastName} onChange={e => setNewClient({ ...newClient, lastName: e.target.value })} placeholder="Doe" /></div>
           </div>
           <div className="space-y-2"><Label>Email</Label><Input type="email" value={newClient.email} onChange={e => setNewClient({ ...newClient, email: e.target.value })} placeholder="juan@email.com" /></div>
-          <div className="space-y-2"><Label>Teléfono</Label><Input value={newClient.phone} onChange={e => setNewClient({ ...newClient, phone: e.target.value })} placeholder="1-868-123-4567" /></div>
-          <div className="space-y-2"><Label>Fuente</Label><Select value={newClient.source} onValueChange={v => setNewClient({ ...newClient, source: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="directo">Directo</SelectItem><SelectItem value="portal">Portal</SelectItem><SelectItem value="referido">Referido</SelectItem><SelectItem value="redes_sociales">Redes Sociales</SelectItem><SelectItem value="otro">Otro</SelectItem></SelectContent></Select></div>
-          <Button className="w-full" style={{ backgroundColor: brand }} onClick={handleCreateClient} disabled={!newClient.firstName || !newClient.lastName}>Crear Cliente</Button>
+          <div className="space-y-2"><Label>Phone</Label><Input value={newClient.phone} onChange={e => setNewClient({ ...newClient, phone: e.target.value })} placeholder="1-868-123-4567" /></div>
+          <div className="space-y-2"><Label>Source</Label><Select value={newClient.source} onValueChange={v => setNewClient({ ...newClient, source: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="directo">Direct</SelectItem><SelectItem value="portal">Portal</SelectItem><SelectItem value="referido">Referral</SelectItem><SelectItem value="redes_sociales">Social Media</SelectItem><SelectItem value="otro">Other</SelectItem></SelectContent></Select></div>
+          <Button className="w-full" style={{ backgroundColor: brand }} onClick={handleCreateClient} disabled={!newClient.firstName || !newClient.lastName}>Create Client</Button>
         </div></DialogContent>
       </Dialog>
     </motion.div>
@@ -649,16 +649,16 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
     <motion.div {...fadeIn} className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
         <div className="flex gap-2">
-          {[['all', 'Todos'], ['pendiente', 'Pendientes'], ['cerrado', 'Cerrados'], ['cancelado', 'Cancelados']].map(([val, label]) => (
+          {[['all', 'All'], ['pendiente', 'Pending'], ['cerrado', 'Closed'], ['cancelado', 'Cancelled']].map(([val, label]) => (
             <Button key={val} variant={dealStatus === val ? 'default' : 'outline'} size="sm" className={cn('text-xs', dealStatus === val && 'text-white')} style={dealStatus === val ? { backgroundColor: brand } : undefined} onClick={() => setDealStatus(val)}>{label}</Button>
           ))}
         </div>
-        <div className="sm:ml-auto"><Button size="sm" style={{ backgroundColor: brand }} onClick={() => setDealDialogOpen(true)}><Plus size={16} className="mr-1" /> Nuevo Trato</Button></div>
+        <div className="sm:ml-auto"><Button size="sm" style={{ backgroundColor: brand }} onClick={() => setDealDialogOpen(true)}><Plus size={16} className="mr-1" /> New Deal</Button></div>
       </div>
       {loading ? (
         <div className="space-y-3">{Array.from({ length: 3 }).map((_, i) => (<Card key={i}><CardContent className="p-4 space-y-2"><Skeleton className="h-5 w-48" /><Skeleton className="h-4 w-32" /></CardContent></Card>))}</div>
       ) : filteredDeals.length === 0 ? (
-        <Card className="py-16 text-center"><Briefcase size={40} className="mx-auto text-gray-300 mb-3" /><p className="text-gray-500 font-medium">No hay tratos</p><p className="text-sm text-gray-400 mt-1">Crea tu primer trato para comenzar</p></Card>
+        <Card className="py-16 text-center"><Briefcase size={40} className="mx-auto text-gray-300 mb-3" /><p className="text-gray-500 font-medium">No deals</p><p className="text-sm text-gray-400 mt-1">Create your first deal to get started</p></Card>
       ) : (
         <div className="space-y-3">
           {filteredDeals.map(deal => (
@@ -666,14 +666,14 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
               <CardContent className="p-4">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap"><h3 className="font-semibold text-gray-800">{deal.property?.title || 'Sin propiedad'}</h3>{statusBadge(deal.status, 'deal')}</div>
-                    <p className="text-sm text-gray-500 mt-1">Cliente: {deal.client?.firstName} {deal.client?.lastName}</p>
-                    <p className="text-xs text-gray-400 mt-1 capitalize">Tipo: {deal.dealType}</p>
+                    <div className="flex items-center gap-2 flex-wrap"><h3 className="font-semibold text-gray-800">{deal.property?.title || 'No property'}</h3>{statusBadge(deal.status, 'deal')}</div>
+                    <p className="text-sm text-gray-500 mt-1">Client: {deal.client?.firstName} {deal.client?.lastName}</p>
+                    <p className="text-xs text-gray-400 mt-1 capitalize">Type: {deal.dealType}</p>
                   </div>
                   <div className="flex items-center gap-6 text-right">
-                    <div><p className="text-xs text-gray-500">Precio Total</p><p className="font-bold text-gray-800">{formatTTD(deal.totalPrice)}</p></div>
-                    <div><p className="text-xs text-gray-500">Comisión</p><p className="font-bold" style={{ color: accent }}>{formatTTD(deal.commission)}</p></div>
-                    {deal.closeDate && (<div><p className="text-xs text-gray-500">Cierre</p><p className="text-sm text-gray-600 flex items-center gap-1"><Calendar size={12} /> {deal.closeDate}</p></div>)}
+                    <div><p className="text-xs text-gray-500">Total Price</p><p className="font-bold text-gray-800">{formatTTD(deal.totalPrice)}</p></div>
+                    <div><p className="text-xs text-gray-500">Commission</p><p className="font-bold" style={{ color: accent }}>{formatTTD(deal.commission)}</p></div>
+                    {deal.closeDate && (<div><p className="text-xs text-gray-500">Closing</p><p className="text-sm text-gray-600 flex items-center gap-1"><Calendar size={12} /> {deal.closeDate}</p></div>)}
                   </div>
                 </div>
               </CardContent>
@@ -682,20 +682,20 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
         </div>
       )}
       <Dialog open={dealDialogOpen} onOpenChange={setDealDialogOpen}>
-        <DialogContent className="max-w-md"><DialogHeader><DialogTitle>Nuevo Trato</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-md"><DialogHeader><DialogTitle>New Deal</DialogTitle></DialogHeader>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2"><Label>Tipo de Trato</Label><Select value={newDeal.dealType} onValueChange={v => setNewDeal({ ...newDeal, dealType: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="venta">Venta</SelectItem><SelectItem value="renta">Renta</SelectItem></SelectContent></Select></div>
-            <div className="space-y-2"><Label>Estado</Label><Select value={newDeal.status} onValueChange={v => setNewDeal({ ...newDeal, status: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="pendiente">Pendiente</SelectItem><SelectItem value="cerrado">Cerrado</SelectItem></SelectContent></Select></div>
+            <div className="space-y-2"><Label>Deal Type</Label><Select value={newDeal.dealType} onValueChange={v => setNewDeal({ ...newDeal, dealType: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="venta">Sale</SelectItem><SelectItem value="renta">Rent</SelectItem></SelectContent></Select></div>
+            <div className="space-y-2"><Label>Status</Label><Select value={newDeal.status} onValueChange={v => setNewDeal({ ...newDeal, status: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="pendiente">Pending</SelectItem><SelectItem value="cerrado">Closed</SelectItem></SelectContent></Select></div>
           </div>
-          <div className="space-y-2"><Label>Propiedad</Label><Select value={newDeal.propertyId} onValueChange={v => setNewDeal({ ...newDeal, propertyId: v })}><SelectTrigger><SelectValue placeholder="Seleccionar propiedad" /></SelectTrigger><SelectContent>{properties.map(p => (<SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>))}</SelectContent></Select></div>
-          <div className="space-y-2"><Label>Cliente</Label><Select value={newDeal.clientId} onValueChange={v => setNewDeal({ ...newDeal, clientId: v })}><SelectTrigger><SelectValue placeholder="Seleccionar cliente" /></SelectTrigger><SelectContent>{clients.map(c => (<SelectItem key={c.id} value={c.id}>{c.firstName} {c.lastName}</SelectItem>))}</SelectContent></Select></div>
+          <div className="space-y-2"><Label>Property</Label><Select value={newDeal.propertyId} onValueChange={v => setNewDeal({ ...newDeal, propertyId: v })}><SelectTrigger><SelectValue placeholder="Select property" /></SelectTrigger><SelectContent>{properties.map(p => (<SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>))}</SelectContent></Select></div>
+          <div className="space-y-2"><Label>Client</Label><Select value={newDeal.clientId} onValueChange={v => setNewDeal({ ...newDeal, clientId: v })}><SelectTrigger><SelectValue placeholder="Select client" /></SelectTrigger><SelectContent>{clients.map(c => (<SelectItem key={c.id} value={c.id}>{c.firstName} {c.lastName}</SelectItem>))}</SelectContent></Select></div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2"><Label>Precio Total (TTD)</Label><Input type="number" value={newDeal.totalPrice} onChange={e => setNewDeal({ ...newDeal, totalPrice: e.target.value })} placeholder="850000" /></div>
-            <div className="space-y-2"><Label>Comisión (TTD)</Label><Input type="number" value={newDeal.commission} onChange={e => setNewDeal({ ...newDeal, commission: e.target.value })} placeholder="25000" /></div>
+            <div className="space-y-2"><Label>Total Price (TTD)</Label><Input type="number" value={newDeal.totalPrice} onChange={e => setNewDeal({ ...newDeal, totalPrice: e.target.value })} placeholder="850000" /></div>
+            <div className="space-y-2"><Label>Commission (TTD)</Label><Input type="number" value={newDeal.commission} onChange={e => setNewDeal({ ...newDeal, commission: e.target.value })} placeholder="25000" /></div>
           </div>
-          <div className="space-y-2"><Label>Fecha de Cierre</Label><Input type="date" value={newDeal.closeDate} onChange={e => setNewDeal({ ...newDeal, closeDate: e.target.value })} /></div>
-          <Button className="w-full" style={{ backgroundColor: brand }} onClick={handleCreateDeal} disabled={!newDeal.propertyId || !newDeal.clientId}>Crear Trato</Button>
+          <div className="space-y-2"><Label>Closing Date</Label><Input type="date" value={newDeal.closeDate} onChange={e => setNewDeal({ ...newDeal, closeDate: e.target.value })} /></div>
+          <Button className="w-full" style={{ backgroundColor: brand }} onClick={handleCreateDeal} disabled={!newDeal.propertyId || !newDeal.clientId}>Create Deal</Button>
         </div></DialogContent>
       </Dialog>
     </motion.div>
@@ -710,21 +710,21 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
     return (
       <motion.div {...fadeIn} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Card><CardContent className="p-4 flex items-center gap-3"><div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center"><AlertTriangle size={20} className="text-amber-600" /></div><div><p className="text-xs text-gray-500">Total Pendiente</p><p className="text-lg font-bold text-amber-600">{formatTTD(totalPending)}</p></div></CardContent></Card>
-          <Card><CardContent className="p-4 flex items-center gap-3"><div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center"><CheckCircle size={20} className="text-emerald-600" /></div><div><p className="text-xs text-gray-500">Total Pagado</p><p className="text-lg font-bold text-emerald-600">{formatTTD(totalPaid)}</p></div></CardContent></Card>
+          <Card><CardContent className="p-4 flex items-center gap-3"><div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center"><AlertTriangle size={20} className="text-amber-600" /></div><div><p className="text-xs text-gray-500">Total Pending</p><p className="text-lg font-bold text-amber-600">{formatTTD(totalPending)}</p></div></CardContent></Card>
+          <Card><CardContent className="p-4 flex items-center gap-3"><div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center"><CheckCircle size={20} className="text-emerald-600" /></div><div><p className="text-xs text-gray-500">Total Paid</p><p className="text-lg font-bold text-emerald-600">{formatTTD(totalPaid)}</p></div></CardContent></Card>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
           <div className="flex gap-2">
-            {[['all', 'Todos'], ['pendiente', 'Pendientes'], ['pagado', 'Pagados']].map(([val, label]) => (
+            {[['all', 'All'], ['pendiente', 'Pending'], ['pagado', 'Paid']].map(([val, label]) => (
               <Button key={val} variant={taxStatus === val ? 'default' : 'outline'} size="sm" className={cn('text-xs', taxStatus === val && 'text-white')} style={taxStatus === val ? { backgroundColor: brand } : undefined} onClick={() => setTaxStatus(val)}>{label}</Button>
             ))}
           </div>
-          <div className="sm:ml-auto"><Button size="sm" style={{ backgroundColor: brand }} onClick={() => setTaxDialogOpen(true)}><Plus size={16} className="mr-1" /> Nueva Obligación</Button></div>
+          <div className="sm:ml-auto"><Button size="sm" style={{ backgroundColor: brand }} onClick={() => setTaxDialogOpen(true)}><Plus size={16} className="mr-1" /> New Tax Obligation</Button></div>
         </div>
         {loading ? (
           <div className="space-y-3">{Array.from({ length: 3 }).map((_, i) => (<Card key={i}><CardContent className="p-4 flex items-center gap-4"><Skeleton className="h-10 w-10 rounded" /><div className="flex-1 space-y-2"><Skeleton className="h-4 w-48" /><Skeleton className="h-3 w-32" /></div></CardContent></Card>))}</div>
         ) : filteredTaxes.length === 0 ? (
-          <Card className="py-16 text-center"><Receipt size={40} className="mx-auto text-gray-300 mb-3" /><p className="text-gray-500 font-medium">No hay obligaciones fiscales</p><p className="text-sm text-gray-400 mt-1">Agrega tu primera obligación fiscal</p></Card>
+          <Card className="py-16 text-center"><Receipt size={40} className="mx-auto text-gray-300 mb-3" /><p className="text-gray-500 font-medium">No tax obligations</p><p className="text-sm text-gray-400 mt-1">Add your first tax obligation</p></Card>
         ) : (
           <div className="space-y-3">
             {filteredTaxes.map(tax => {
@@ -756,16 +756,16 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
           </div>
         )}
         <Dialog open={taxDialogOpen} onOpenChange={setTaxDialogOpen}>
-          <DialogContent className="max-w-md"><DialogHeader><DialogTitle>Nueva Obligación Fiscal</DialogTitle></DialogHeader>
+          <DialogContent className="max-w-md"><DialogHeader><DialogTitle>New Tax Obligation</DialogTitle></DialogHeader>
           <div className="space-y-4">
-            <div className="space-y-2"><Label>Tipo de Impuesto</Label><Select value={newTax.taxType} onValueChange={v => setNewTax({ ...newTax, taxType: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="impuesto_propiedad">Impuesto a la Propiedad</SelectItem><SelectItem value="impuesto_renta">Impuesto a la Renta</SelectItem><SelectItem value="iva">IVA</SelectItem><SelectItem value="otros">Otros</SelectItem></SelectContent></Select></div>
-            <div className="space-y-2"><Label>Descripción</Label><Input value={newTax.description} onChange={e => setNewTax({ ...newTax, description: e.target.value })} placeholder="Descripción de la obligación" /></div>
+            <div className="space-y-2"><Label>Tax Type</Label><Select value={newTax.taxType} onValueChange={v => setNewTax({ ...newTax, taxType: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="impuesto_propiedad">Property Tax</SelectItem><SelectItem value="impuesto_renta">Income Tax</SelectItem><SelectItem value="iva">VAT</SelectItem><SelectItem value="otros">Other</SelectItem></SelectContent></Select></div>
+            <div className="space-y-2"><Label>Description</Label><Input value={newTax.description} onChange={e => setNewTax({ ...newTax, description: e.target.value })} placeholder="Tax obligation description" /></div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2"><Label>Período</Label><Input value={newTax.period} onChange={e => setNewTax({ ...newTax, period: e.target.value })} placeholder="Q1 2025" /></div>
-              <div className="space-y-2"><Label>Fecha de Vencimiento</Label><Input type="date" value={newTax.dueDate} onChange={e => setNewTax({ ...newTax, dueDate: e.target.value })} /></div>
+              <div className="space-y-2"><Label>Period</Label><Input value={newTax.period} onChange={e => setNewTax({ ...newTax, period: e.target.value })} placeholder="Q1 2025" /></div>
+              <div className="space-y-2"><Label>Due Date</Label><Input type="date" value={newTax.dueDate} onChange={e => setNewTax({ ...newTax, dueDate: e.target.value })} /></div>
             </div>
-            <div className="space-y-2"><Label>Monto (TTD)</Label><Input type="number" value={newTax.amount} onChange={e => setNewTax({ ...newTax, amount: e.target.value })} placeholder="5000" /></div>
-            <Button className="w-full" style={{ backgroundColor: brand }} onClick={handleCreateTax} disabled={!newTax.description || !newTax.amount}>Crear Obligación</Button>
+            <div className="space-y-2"><Label>Amount (TTD)</Label><Input type="number" value={newTax.amount} onChange={e => setNewTax({ ...newTax, amount: e.target.value })} placeholder="5000" /></div>
+            <Button className="w-full" style={{ backgroundColor: brand }} onClick={handleCreateTax} disabled={!newTax.description || !newTax.amount}>Create Obligation</Button>
           </div></DialogContent>
         </Dialog>
       </motion.div>
@@ -791,47 +791,47 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
     return (
       <motion.div {...fadeIn} className="space-y-6">
         <Card>
-          <CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-sm font-semibold text-gray-700">Visitas Diarias (últimos 7 días)</CardTitle><div className="flex items-center gap-2 text-xs text-gray-500"><Eye size={14} /><span>Total 30d: {analytics?.visits?.last30d || 0}</span></div></div></CardHeader>
+          <CardHeader className="pb-2"><div className="flex items-center justify-between"><CardTitle className="text-sm font-semibold text-gray-700">Daily Visits (last 7 days)</CardTitle><div className="flex items-center gap-2 text-xs text-gray-500"><Eye size={14} /><span>Total 30d: {analytics?.visits?.last30d || 0}</span></div></div></CardHeader>
           <CardContent className="p-4">
-            {dailyVisits.length === 0 ? (<p className="text-sm text-gray-400 text-center py-12">No hay datos de visitas aún</p>) : (
+            {dailyVisits.length === 0 ? (<p className="text-sm text-gray-400 text-center py-12">No visit data yet</p>) : (
               <div className="flex items-end gap-3 h-56">{dailyVisits.map(d => (<div key={d.date} className="flex-1 flex flex-col items-center gap-1"><span className="text-xs font-medium text-gray-600">{d.count}</span><div className="w-full rounded-t-md transition-all duration-300 hover:opacity-100" style={{ height: `${Math.max((d.count / maxVisits) * 180, 4)}px`, backgroundColor: brand, opacity: 0.75 }} /><span className="text-xs text-gray-400">{getDayName(d.date)}</span></div>))}</div>
             )}
           </CardContent>
         </Card>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card>
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold text-gray-700">Elementos Más Clicados</CardTitle></CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold text-gray-700">Most Clicked Elements</CardTitle></CardHeader>
             <CardContent className="p-4 space-y-3 max-h-64 overflow-y-auto scrollbar-thin">
-              {topClicks.length === 0 ? (<p className="text-sm text-gray-400 text-center py-4">No hay datos aún</p>) : (topClicks.map((click, idx) => { const maxC = Math.max(...topClicks.map(c => c.count), 1); return (<div key={click.elementId} className="flex items-center gap-3"><span className="text-xs font-bold text-gray-400 w-4 text-right">{idx + 1}</span><div className="flex-1 min-w-0"><p className="text-sm text-gray-700 truncate">{click.elementText}</p><Progress value={(click.count / maxC) * 100} className="h-1.5 mt-1" /></div><span className="text-xs font-medium text-gray-600">{click.count}</span></div>); }))}
+              {topClicks.length === 0 ? (<p className="text-sm text-gray-400 text-center py-4">No data yet</p>) : (topClicks.map((click, idx) => { const maxC = Math.max(...topClicks.map(c => c.count), 1); return (<div key={click.elementId} className="flex items-center gap-3"><span className="text-xs font-bold text-gray-400 w-4 text-right">{idx + 1}</span><div className="flex-1 min-w-0"><p className="text-sm text-gray-700 truncate">{click.elementText}</p><Progress value={(click.count / maxC) * 100} className="h-1.5 mt-1" /></div><span className="text-xs font-medium text-gray-600">{click.count}</span></div>); }))}
             </CardContent>
           </Card>
           <Card>
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold text-gray-700">Fuentes de Tráfico</CardTitle></CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold text-gray-700">Traffic Sources</CardTitle></CardHeader>
             <CardContent className="p-4 space-y-3 max-h-64 overflow-y-auto scrollbar-thin">
-              {referrers.length === 0 ? (<p className="text-sm text-gray-400 text-center py-4">No hay datos aún</p>) : (referrers.map((ref, idx) => { const maxR = Math.max(...referrers.map(r => r.count), 1); return (<div key={idx} className="flex items-center gap-3"><Globe size={14} className="text-gray-400" /><div className="flex-1 min-w-0"><p className="text-sm text-gray-700 truncate">{ref.referrer}</p><Progress value={(ref.count / maxR) * 100} className="h-1.5 mt-1" /></div><span className="text-xs font-medium text-gray-600">{ref.count}</span></div>); }))}
+              {referrers.length === 0 ? (<p className="text-sm text-gray-400 text-center py-4">No data yet</p>) : (referrers.map((ref, idx) => { const maxR = Math.max(...referrers.map(r => r.count), 1); return (<div key={idx} className="flex items-center gap-3"><Globe size={14} className="text-gray-400" /><div className="flex-1 min-w-0"><p className="text-sm text-gray-700 truncate">{ref.referrer}</p><Progress value={(ref.count / maxR) * 100} className="h-1.5 mt-1" /></div><span className="text-xs font-medium text-gray-600">{ref.count}</span></div>); }))}
             </CardContent>
           </Card>
           <Card>
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold text-gray-700">Vistas de Página</CardTitle></CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold text-gray-700">Page Views</CardTitle></CardHeader>
             <CardContent className="p-4 space-y-3 max-h-64 overflow-y-auto scrollbar-thin">
-              {pages.length === 0 ? (<p className="text-sm text-gray-400 text-center py-4">No hay datos aún</p>) : (pages.map((page, idx) => { const maxP = Math.max(...pages.map(p => p.count), 1); return (<div key={idx} className="flex items-center gap-3"><FileText size={14} className="text-gray-400" /><div className="flex-1 min-w-0"><p className="text-sm text-gray-700 truncate">{page.page}</p><Progress value={(page.count / maxP) * 100} className="h-1.5 mt-1" /></div><span className="text-xs font-medium text-gray-600">{page.count}</span></div>); }))}
+              {pages.length === 0 ? (<p className="text-sm text-gray-400 text-center py-4">No data yet</p>) : (pages.map((page, idx) => { const maxP = Math.max(...pages.map(p => p.count), 1); return (<div key={idx} className="flex items-center gap-3"><FileText size={14} className="text-gray-400" /><div className="flex-1 min-w-0"><p className="text-sm text-gray-700 truncate">{page.page}</p><Progress value={(page.count / maxP) * 100} className="h-1.5 mt-1" /></div><span className="text-xs font-medium text-gray-600">{page.count}</span></div>); }))}
             </CardContent>
           </Card>
           <Card>
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold text-gray-700">Métricas Clave</CardTitle></CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold text-gray-700">Key Metrics</CardTitle></CardHeader>
             <CardContent className="p-4 space-y-6">
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <span className="text-sm text-gray-600">Tiempo Promedio de Estadía</span>
+                <span className="text-sm text-gray-600">Avg. Dwell Time</span>
                 <span className="font-semibold text-gray-800">{analytics?.avgDwellTime ? `${Math.floor(analytics.avgDwellTime / 60)}m ${analytics.avgDwellTime % 60}s` : 'N/A'}</span>
               </div>
               <div>
-                <p className="text-sm font-semibold text-gray-700 mb-3">Embudo de Conversión</p>
+                <p className="text-sm font-semibold text-gray-700 mb-3">Conversion Funnel</p>
                 <div className="space-y-2">
                   {[
-                    { label: 'Visitantes', count: totalVisits, color: '#059669' },
-                    { label: 'Vistas de Propiedad', count: totalPropertyViews, color: '#D97706' },
-                    { label: 'Consultas', count: totalInq, color: '#DC2626' },
-                    { label: 'Tratos', count: totalDealsCount, color: brand },
+                    { label: 'Visitors', count: totalVisits, color: '#059669' },
+                    { label: 'Property Views', count: totalPropertyViews, color: '#D97706' },
+                    { label: 'Inquiries', count: totalInq, color: '#DC2626' },
+                    { label: 'Deals', count: totalDealsCount, color: brand },
                   ].map((step, idx) => {
                     const prevCount = idx === 0 ? step.count : [totalVisits, totalPropertyViews, totalInq, totalDealsCount][idx - 1];
                     const rate = prevCount > 0 ? ((step.count / prevCount) * 100).toFixed(1) : '0';
@@ -860,7 +860,7 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
     <motion.div {...fadeIn} className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
         <div className="flex gap-2">
-          {[['all', 'Todas'], ['new', 'Nuevas'], ['read', 'Leídas']].map(([val, label]) => (
+          {[['all', 'All'], ['new', 'New'], ['read', 'Read']].map(([val, label]) => (
             <Button key={val} variant={inquiryFilter === val ? 'default' : 'outline'} size="sm" className={cn('text-xs', inquiryFilter === val && 'text-white')} style={inquiryFilter === val ? { backgroundColor: brand } : undefined} onClick={() => setInquiryFilter(val)}>{label}</Button>
           ))}
         </div>
@@ -868,7 +868,7 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
       {loading ? (
         <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => (<Card key={i}><CardContent className="p-4 space-y-2"><Skeleton className="h-5 w-40" /><Skeleton className="h-4 w-64" /><Skeleton className="h-3 w-24" /></CardContent></Card>))}</div>
       ) : filteredInquiries.length === 0 ? (
-        <Card className="py-16 text-center"><Mail size={40} className="mx-auto text-gray-300 mb-3" /><p className="text-gray-500 font-medium">No hay consultas</p><p className="text-sm text-gray-400 mt-1">Las consultas de tus propiedades aparecerán aquí</p></Card>
+        <Card className="py-16 text-center"><Mail size={40} className="mx-auto text-gray-300 mb-3" /><p className="text-gray-500 font-medium">No inquiries</p><p className="text-sm text-gray-400 mt-1">Inquiries from your properties will appear here</p></Card>
       ) : (
         <div className="space-y-3">
           {filteredInquiries.map(inq => {
@@ -884,10 +884,10 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className={cn('text-sm', !inq.isRead && 'font-bold text-gray-900', inq.isRead && 'font-medium text-gray-700')}>{inq.name}</h3>
                         {!inq.isRead && (<span className="h-2 w-2 rounded-full bg-amber-500 flex-shrink-0" />)}
-                        <Badge className={cn('text-xs', inq.status === 'new' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-600')}>{inq.status === 'new' ? 'Nueva' : inq.status === 'read' ? 'Leída' : inq.status === 'responded' ? 'Respondida' : inq.status}</Badge>
+                        <Badge className={cn('text-xs', inq.status === 'new' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-600')}>{inq.status === 'new' ? 'New' : inq.status === 'read' ? 'Read' : inq.status === 'responded' ? 'Responded' : inq.status}</Badge>
                       </div>
                       <p className="text-xs text-gray-500 mt-0.5">{inq.email} · {inq.phone}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">Propiedad: {inq.property?.title || 'N/A'} · {formatRelativeTime(inq.createdAt)}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">Property: {inq.property?.title || 'N/A'} · {formatRelativeTime(inq.createdAt)}</p>
                       <AnimatePresence>
                         {isExpanded && (
                           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
@@ -896,14 +896,14 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
                             </div>
                             <div className="mt-2 flex gap-2">
                               <a
-                                href={`https://wa.me/${agent.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hola ${inq.name}, gracias por tu consulta sobre ${inq.property?.title || 'la propiedad'}. Me pondré en contacto contigo pronto.`)}`}
+                                href={`https://wa.me/${agent.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${inq.name}, thank you for your inquiry about ${inq.property?.title || 'the property'}. I will get in touch with you soon.`)}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={e => e.stopPropagation()}
                                 className="inline-flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-md text-white"
                                 style={{ backgroundColor: '#25D366' }}
                               >
-                                <Phone size={12} /> Responder por WhatsApp
+                                <Phone size={12} /> Reply via WhatsApp
                               </a>
                             </div>
                           </motion.div>
@@ -977,7 +977,7 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
             <Badge className="text-xs text-white border-white/30" style={{ backgroundColor: accent, borderColor: accent + '50' }}>Plan Pro</Badge>
           </div>
           <button onClick={onLogout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 hover:text-white transition-colors">
-            <LogOut size={20} /> Cerrar Sesión
+            <LogOut size={20} /> Log Out
           </button>
         </div>
       </aside>
@@ -994,7 +994,7 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
             <div className="flex items-center gap-3">
               <div className="hidden sm:block relative">
                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <Input placeholder="Buscar..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9 w-48 h-8 text-sm" />
+                <Input placeholder="Search..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9 w-48 h-8 text-sm" />
               </div>
               <button onClick={() => setActiveTab('consultas')} className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors">
                 {unreadCount > 0 ? <BellRing size={20} className="text-amber-600" /> : <Bell size={20} className="text-gray-500" />}
@@ -1019,10 +1019,10 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-gray-200 shadow-lg">
         <div className="flex items-center justify-around h-16 px-1">
           {[
-            { key: 'panel' as NavTab, label: 'Panel', icon: <LayoutDashboard size={18} /> },
-            { key: 'propiedades' as NavTab, label: 'Propiedades', icon: <Building2 size={18} /> },
-            { key: 'clientes' as NavTab, label: 'Clientes', icon: <Users size={18} /> },
-            { key: 'analiticas' as NavTab, label: 'Analíticas', icon: <BarChart3 size={18} /> },
+            { key: 'panel' as NavTab, label: 'Home', icon: <LayoutDashboard size={18} /> },
+            { key: 'propiedades' as NavTab, label: 'Properties', icon: <Building2 size={18} /> },
+            { key: 'clientes' as NavTab, label: 'Clients', icon: <Users size={18} /> },
+            { key: 'analiticas' as NavTab, label: 'Analytics', icon: <BarChart3 size={18} /> },
           ].map(item => (
             <button key={item.key} onClick={() => setActiveTab(item.key)} className={cn('flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg transition-colors min-w-0', activeTab === item.key ? 'text-gray-900' : 'text-gray-400')}>
               <div className="relative">{item.icon}{item.key === 'consultas' && unreadCount > 0 && (<span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500" />)}</div>
@@ -1033,11 +1033,11 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
               <button className={cn('flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg transition-colors', mobileMenuOpen ? 'text-gray-900' : 'text-gray-400')}>
-                <Menu size={18} /><span className="text-[10px] font-medium">Más</span>
+                <Menu size={18} /><span className="text-[10px] font-medium">More</span>
               </button>
             </SheetTrigger>
             <SheetContent side="bottom" className="rounded-t-2xl max-h-[60vh]">
-              <SheetHeader className="pb-2"><SheetTitle className="text-left">Más Opciones</SheetTitle></SheetHeader>
+              <SheetHeader className="pb-2"><SheetTitle className="text-left">More Options</SheetTitle></SheetHeader>
               <div className="space-y-1">
                 {[navItems[3], navItems[4], navItems[6]].map(item => (
                   <button key={item.key} onClick={() => { setActiveTab(item.key); setMobileMenuOpen(false); }} className={cn('w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors text-left', activeTab === item.key ? 'font-medium' : 'text-gray-600')}>
@@ -1047,7 +1047,7 @@ export default function AgentDashboard({ agent, onLogout, onBack }: AgentDashboa
                 ))}
                 <Separator className="my-2" />
                 <button onClick={() => { onLogout(); setMobileMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-red-600 hover:bg-red-50 transition-colors text-left">
-                  <LogOut size={20} /> Cerrar Sesión
+                  <LogOut size={20} /> Log Out
                 </button>
               </div>
             </SheetContent>

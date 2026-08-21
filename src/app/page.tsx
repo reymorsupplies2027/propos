@@ -95,7 +95,7 @@ export default function App() {
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#1B4332] to-[#2D6A4F] flex items-center justify-center mx-auto mb-4 animate-pulse">
             <Building2 className="w-6 h-6 text-white" />
           </div>
-          <p className="text-sm text-[#9A9A9A]">Cargando...</p>
+          <p className="text-sm text-[#9A9A9A]">Loading...</p>
         </div>
       </div>
     );

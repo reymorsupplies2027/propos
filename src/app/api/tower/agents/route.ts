@@ -7,17 +7,17 @@ import { Prisma } from '@prisma/client';
 async function requirePlatformOwner(request: NextRequest) {
   const token = request.cookies.get('propos-token')?.value;
   if (!token) {
-    return { error: NextResponse.json({ error: 'No autenticado' }, { status: 401 }), user: null };
+    return { error: NextResponse.json({ error: 'Not authenticated' }, { status: 401 }), user: null };
   }
 
   const payload = verifyToken(token);
   if (!payload) {
-    return { error: NextResponse.json({ error: 'Token inválido o expirado' }, { status: 401 }), user: null };
+    return { error: NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 }), user: null };
   }
 
   const { role } = payload as { role: string };
   if (role !== 'platform_owner') {
-    return { error: NextResponse.json({ error: 'Acceso denegado. Solo el propietario de la plataforma puede acceder.' }, { status: 403 }), user: null };
+    return { error: NextResponse.json({ error: 'Access denied. Only the platform owner can access this resource.' }, { status: 403 }), user: null };
   }
 
   return { error: null, user: payload };
@@ -151,9 +151,9 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error al listar agentes:', error);
+    console.error('Error listing agents:', error);
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

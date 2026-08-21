@@ -6,17 +6,17 @@ import { verifyToken } from '@/lib/auth';
 async function requirePlatformOwner(request: NextRequest) {
   const token = request.cookies.get('propos-token')?.value;
   if (!token) {
-    return { error: NextResponse.json({ error: 'No autenticado' }, { status: 401 }), user: null };
+    return { error: NextResponse.json({ error: 'Not authenticated' }, { status: 401 }), user: null };
   }
 
   const payload = verifyToken(token);
   if (!payload) {
-    return { error: NextResponse.json({ error: 'Token inválido o expirado' }, { status: 401 }), user: null };
+    return { error: NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 }), user: null };
   }
 
   const { role } = payload as { role: string };
   if (role !== 'platform_owner') {
-    return { error: NextResponse.json({ error: 'Acceso denegado. Solo el propietario de la plataforma puede acceder.' }, { status: 403 }), user: null };
+    return { error: NextResponse.json({ error: 'Access denied. Only the platform owner can access this resource.' }, { status: 403 }), user: null };
   }
 
   return { error: null, user: payload };
@@ -35,7 +35,7 @@ export async function PATCH(
 
     const plan = await db.plan.findUnique({ where: { id } });
     if (!plan) {
-      return NextResponse.json({ error: 'Plan no encontrado' }, { status: 404 });
+      return NextResponse.json({ error: 'Plan not found' }, { status: 404 });
     }
 
     const body = await request.json();
@@ -46,7 +46,7 @@ export async function PATCH(
       const existing = await db.plan.findUnique({ where: { slug } });
       if (existing) {
         return NextResponse.json(
-          { error: 'Ya existe un plan con ese slug' },
+          { error: 'A plan with this slug already exists' },
           { status: 409 }
         );
       }
@@ -67,13 +67,13 @@ export async function PATCH(
     });
 
     return NextResponse.json({
-      mensaje: 'Plan actualizado correctamente',
+      message: 'Plan updated successfully',
       plan: updatedPlan,
     });
   } catch (error) {
-    console.error('Error al actualizar plan:', error);
+    console.error('Error updating plan:', error);
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
@@ -99,19 +99,19 @@ export async function DELETE(
     });
 
     if (!plan) {
-      return NextResponse.json({ error: 'Plan no encontrado' }, { status: 404 });
+      return NextResponse.json({ error: 'Plan not found' }, { status: 404 });
     }
 
     if (!plan.isActive) {
       return NextResponse.json(
-        { error: 'El plan ya está desactivado' },
+        { error: 'The plan is already deactivated' },
         { status: 400 }
       );
     }
 
     if (plan.subscriptions.length > 0) {
       return NextResponse.json(
-        { error: 'No se puede desactivar el plan porque tiene suscripciones activas. Cancela las suscripciones primero o reasigna los agentes a otro plan.' },
+        { error: 'Cannot deactivate the plan because it has active subscriptions. Cancel the subscriptions first or reassign agents to another plan.' },
         { status: 400 }
       );
     }
@@ -122,13 +122,13 @@ export async function DELETE(
     });
 
     return NextResponse.json({
-      mensaje: 'Plan desactivado correctamente',
+      message: 'Plan deactivated successfully',
       plan: deactivatedPlan,
     });
   } catch (error) {
-    console.error('Error al desactivar plan:', error);
+    console.error('Error deactivating plan:', error);
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

@@ -417,7 +417,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
   const submitInquiry = useCallback(async () => {
     if (!inquiryProperty) return;
     if (!inquiryForm.name.trim() || !inquiryForm.email.trim()) {
-      toast.error('Por favor, ingresa tu nombre y correo electrónico.');
+      toast.error('Please enter your name and email address.');
       return;
     }
     setSubmitting(true);
@@ -435,13 +435,13 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
         }),
       });
       if (!res.ok) {
-        throw new Error('Error enviando consulta');
+        throw new Error('Error sending inquiry');
       }
-      toast.success('¡Tu consulta ha sido enviada exitosamente! Nos pondremos en contacto pronto.');
+      toast.success('Your inquiry has been sent successfully! We will get in touch soon.');
       setInquiryOpen(false);
       track('inquiry_submit', { propertySlug: inquiryProperty.slug, elementId: `inquiry_submit_${inquiryProperty.slug}` });
     } catch (err) {
-      toast.error('Hubo un error al enviar tu consulta. Por favor, intenta de nuevo.');
+      toast.error('There was an error sending your inquiry. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -499,11 +499,11 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
           <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 text-lg">Agente no encontrado</p>
+          <p className="text-gray-500 text-lg">Agent not found</p>
           {onBack && (
             <Button variant="outline" className="mt-4" onClick={onBack}>
               <ArrowRight className="w-4 h-4 mr-2 rotate-180" />
-              Volver
+              Go Back
             </Button>
           )}
         </div>
@@ -545,25 +545,25 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
             {/* Center: Nav links (desktop) */}
             <div className="hidden md:flex items-center gap-8">
               <button
-                onClick={() => scrollToSection('hero-section', 'Inicio')}
+                onClick={() => scrollToSection('hero-section', 'Home')}
                 className="text-sm font-medium hover:opacity-80 transition-opacity"
                 style={{ color: primaryColor }}
               >
-                Inicio
+                Home
               </button>
               <button
-                onClick={() => scrollToSection('propiedades-section', 'Propiedades')}
+                onClick={() => scrollToSection('propiedades-section', 'Properties')}
                 className="text-sm font-medium hover:opacity-80 transition-opacity"
                 style={{ color: primaryColor }}
               >
-                Propiedades
+                Properties
               </button>
               <button
-                onClick={() => scrollToSection('contacto-section', 'Contacto')}
+                onClick={() => scrollToSection('contacto-section', 'Contact')}
                 className="text-sm font-medium hover:opacity-80 transition-opacity"
                 style={{ color: primaryColor }}
               >
-                Contacto
+                Contact
               </button>
             </div>
 
@@ -612,25 +612,25 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
           </SheetHeader>
           <div className="flex flex-col gap-2 mt-4">
             <button
-              onClick={() => scrollToSection('hero-section', 'Inicio')}
+              onClick={() => scrollToSection('hero-section', 'Home')}
               className="text-left px-4 py-3 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
               style={{ color: primaryColor }}
             >
-              Inicio
+              Home
             </button>
             <button
-              onClick={() => scrollToSection('propiedades-section', 'Propiedades')}
+              onClick={() => scrollToSection('propiedades-section', 'Properties')}
               className="text-left px-4 py-3 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
               style={{ color: primaryColor }}
             >
-              Propiedades
+              Properties
             </button>
             <button
-              onClick={() => scrollToSection('contacto-section', 'Contacto')}
+              onClick={() => scrollToSection('contacto-section', 'Contact')}
               className="text-left px-4 py-3 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
               style={{ color: primaryColor }}
             >
-              Contacto
+              Contact
             </button>
             <Separator className="my-2" />
             {agent.phone && (
@@ -693,7 +693,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <Input
-                    placeholder="Buscar por nombre, ciudad..."
+                    placeholder="Search by name, city..."
                     className="pl-10 h-12 bg-white rounded-lg text-base"
                     value={heroSearch}
                     onChange={(e) => setHeroSearch(e.target.value)}
@@ -702,12 +702,12 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                 </div>
                 <Select value={heroListingType} onValueChange={setHeroListingType}>
                   <SelectTrigger className="h-12 w-full sm:w-40 bg-white rounded-lg">
-                    <SelectValue placeholder="Tipo" />
+                    <SelectValue placeholder="Type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos</SelectItem>
-                    <SelectItem value="sale">Venta</SelectItem>
-                    <SelectItem value="rent">Renta</SelectItem>
+                    <SelectItem value="">All</SelectItem>
+                    <SelectItem value="sale">For Sale</SelectItem>
+                    <SelectItem value="rent">For Rent</SelectItem>
                   </SelectContent>
                 </Select>
                 <Button
@@ -716,7 +716,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                   style={{ backgroundColor: accentColor }}
                 >
                   <Search className="w-4 h-4 mr-2" />
-                  Buscar
+                  Search
                 </Button>
               </div>
             </div>
@@ -731,12 +731,12 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
             >
               <div className="flex items-center gap-2">
                 <Building2 className="w-5 h-5" />
-                <span className="text-sm sm:text-base font-medium">{agent.propertyCount} Propiedades</span>
+                <span className="text-sm sm:text-base font-medium">{agent.propertyCount} Properties</span>
               </div>
               <span className="hidden sm:inline text-white/50">•</span>
               <div className="flex items-center gap-2">
                 <Check className="w-5 h-5" />
-                <span className="text-sm sm:text-base font-medium">{agent.tratosCerrados} Tratos Cerrados</span>
+                <span className="text-sm sm:text-base font-medium">{agent.tratosCerrados} Deals Closed</span>
               </div>
               <span className="hidden sm:inline text-white/50">•</span>
               <div className="flex items-center gap-2">
@@ -762,7 +762,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
               transition={{ duration: 0.5 }}
             >
               <h2 className="text-2xl sm:text-3xl font-bold mb-8" style={{ color: primaryColor }}>
-                Propiedades Destacadas
+                Featured Properties
               </h2>
             </motion.div>
 
@@ -794,7 +794,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                         <div className="absolute top-2 right-2">
                           <Badge className="bg-yellow-400 text-yellow-900 text-xs font-semibold">
                             <Star className="w-3 h-3 mr-1" />
-                            Destacada
+Featured
                           </Badge>
                         </div>
                       )}
@@ -805,7 +805,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                           color: 'white',
                         }}
                       >
-                        {property.listingType === 'sale' ? 'Venta' : 'Renta'}
+                        {property.listingType === 'sale' ? 'For Sale' : 'For Rent'}
                       </Badge>
                     </div>
                     <CardContent className="p-4">
@@ -840,7 +840,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                         className="w-full text-white text-sm"
                         style={{ backgroundColor: primaryColor }}
                       >
-                        Ver Detalles
+                        View Details
                         <ArrowRight className="w-4 h-4 ml-1" />
                       </Button>
                     </CardContent>
@@ -863,7 +863,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
             transition={{ duration: 0.5 }}
           >
             <h2 className="text-2xl sm:text-3xl font-bold mb-8" style={{ color: primaryColor }}>
-              Nuestras Propiedades
+              Our Properties
             </h2>
           </motion.div>
 
@@ -881,7 +881,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
               <div className="relative lg:col-span-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
-                  placeholder="Buscar..."
+                  placeholder="Search..."
                   className="pl-9 h-10 bg-white"
                   value={filters.search}
                   onChange={(e) => handleFilterChange('search', e.target.value)}
@@ -893,13 +893,13 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                 onValueChange={(v) => handleFilterChange('propertyType', v === '__all__' ? '' : v)}
               >
                 <SelectTrigger className="h-10 w-full bg-white">
-                  <SelectValue placeholder="Tipo de Propiedad" />
+                  <SelectValue placeholder="Property Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__all__">Todos</SelectItem>
-                  <SelectItem value="residential">Residencial</SelectItem>
-                  <SelectItem value="commercial">Comercial</SelectItem>
-                  <SelectItem value="land">Terreno</SelectItem>
+                  <SelectItem value="__all__">All</SelectItem>
+                  <SelectItem value="residential">Residential</SelectItem>
+                  <SelectItem value="commercial">Commercial</SelectItem>
+                  <SelectItem value="land">Land</SelectItem>
                 </SelectContent>
               </Select>
               {/* Listing Type */}
@@ -908,12 +908,12 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                 onValueChange={(v) => handleFilterChange('listingType', v === '__all__' ? '' : v)}
               >
                 <SelectTrigger className="h-10 w-full bg-white">
-                  <SelectValue placeholder="Venta / Renta" />
+                  <SelectValue placeholder="For Sale / For Rent" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__all__">Todos</SelectItem>
-                  <SelectItem value="sale">Venta</SelectItem>
-                  <SelectItem value="rent">Renta</SelectItem>
+                  <SelectItem value="__all__">All</SelectItem>
+                  <SelectItem value="sale">For Sale</SelectItem>
+                  <SelectItem value="rent">For Rent</SelectItem>
                 </SelectContent>
               </Select>
               {/* Bedrooms */}
@@ -922,10 +922,10 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                 onValueChange={(v) => handleFilterChange('bedrooms', v === '__all__' ? '' : v)}
               >
                 <SelectTrigger className="h-10 w-full bg-white">
-                  <SelectValue placeholder="Habitaciones" />
+                  <SelectValue placeholder="Bedrooms" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__all__">Todos</SelectItem>
+                  <SelectItem value="__all__">All</SelectItem>
                   <SelectItem value="1">1+</SelectItem>
                   <SelectItem value="2">2+</SelectItem>
                   <SelectItem value="3">3+</SelectItem>
@@ -938,14 +938,14 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                 onValueChange={(v) => handleFilterChange('priceRange', v === '__all__' ? '' : v)}
               >
                 <SelectTrigger className="h-10 w-full bg-white">
-                  <SelectValue placeholder="Rango de Precio" />
+                  <SelectValue placeholder="Price Range" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__all__">Todos</SelectItem>
-                  <SelectItem value="500000">Hasta $500k</SelectItem>
-                  <SelectItem value="1000000">Hasta $1M</SelectItem>
-                  <SelectItem value="2000000">Hasta $2M</SelectItem>
-                  <SelectItem value="2000001">Más de $2M</SelectItem>
+                  <SelectItem value="__all__">All</SelectItem>
+                  <SelectItem value="500000">Up to $500k</SelectItem>
+                  <SelectItem value="1000000">Up to $1M</SelectItem>
+                  <SelectItem value="2000000">Up to $2M</SelectItem>
+                  <SelectItem value="2000001">Over $2M</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -980,17 +980,17 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
             >
               <Home className="w-16 h-16 text-gray-200 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-600 mb-2">
-                No se encontraron propiedades con estos filtros
+                No properties found with these filters
               </h3>
               <p className="text-gray-400 mb-6">
-                Intenta ajustar los filtros para ver más resultados.
+                Try adjusting the filters to see more results.
               </p>
               <Button
                 variant="outline"
                 onClick={resetFilters}
                 style={{ borderColor: primaryColor, color: primaryColor }}
               >
-                Limpiar Filtros
+                Clear Filters
               </Button>
             </motion.div>
           ) : (
@@ -1025,7 +1025,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                               : 'bg-yellow-500'
                           )}
                         >
-                          {property.status === 'available' ? 'Disponible' : 'Pendiente'}
+                          {property.status === 'available' ? 'Available' : 'Pending'}
                         </Badge>
 
                         {/* Listing type badge */}
@@ -1035,7 +1035,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                             backgroundColor: property.listingType === 'sale' ? primaryColor : accentColor,
                           }}
                         >
-                          {property.listingType === 'sale' ? 'Venta' : 'Renta'}
+                          {property.listingType === 'sale' ? 'For Sale' : 'For Rent'}
                         </Badge>
 
                         {/* Featured star */}
@@ -1104,7 +1104,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                             onClick={() => openDetail(property)}
                           >
                             <Eye className="w-4 h-4 mr-1" />
-                            Ver Detalles
+                            View Details
                           </Button>
                           <Button
                             variant="outline"
@@ -1206,7 +1206,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                       selectedProperty.status === 'available' ? 'bg-green-500' : 'bg-yellow-500'
                     )}
                   >
-                    {selectedProperty.status === 'available' ? 'Disponible' : 'Pendiente'}
+                    {selectedProperty.status === 'available' ? 'Available' : 'Pending'}
                   </Badge>
                   <Badge
                     className="text-white text-sm"
@@ -1214,15 +1214,15 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                       backgroundColor: selectedProperty.listingType === 'sale' ? primaryColor : accentColor,
                     }}
                   >
-                    {selectedProperty.listingType === 'sale' ? 'Venta' : 'Renta'}
+                    {selectedProperty.listingType === 'sale' ? 'For Sale' : 'For Rent'}
                   </Badge>
                   <Badge className="bg-gray-100 text-gray-700 text-sm">
                     {selectedProperty.propertyType === 'residential'
-                      ? 'Residencial'
+                      ? 'Residential'
                       : selectedProperty.propertyType === 'commercial'
-                        ? 'Comercial'
+                        ? 'Commercial'
                         : selectedProperty.propertyType === 'land'
-                          ? 'Terreno'
+                          ? 'Land'
                           : selectedProperty.propertyType}
                   </Badge>
                 </div>
@@ -1230,7 +1230,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                   <div className="absolute top-4 right-4">
                     <Badge className="bg-yellow-400 text-yellow-900 text-sm font-semibold">
                       <Star className="w-3.5 h-3.5 mr-1" fill="currentColor" />
-                      Destacada
+                      Featured
                     </Badge>
                   </div>
                 )}
@@ -1260,7 +1260,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
               {/* Description */}
               {selectedProperty.description && (
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Descripción</h4>
+                  <h4 className="font-semibold text-gray-900 mb-2">Description</h4>
                   <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
                     {selectedProperty.description}
                   </p>
@@ -1269,13 +1269,13 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
 
               {/* Features grid */}
               <div>
-                <h4 className="font-semibold text-gray-900 mb-3">Características</h4>
+                <h4 className="font-semibold text-gray-900 mb-3">Features</h4>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {selectedProperty.bedrooms != null && (
                     <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
                       <Bed className="w-5 h-5" style={{ color: primaryColor }} />
                       <div>
-                        <p className="text-xs text-gray-500">Habitaciones</p>
+                        <p className="text-xs text-gray-500">Bedrooms</p>
                         <p className="font-semibold text-gray-900">{selectedProperty.bedrooms}</p>
                       </div>
                     </div>
@@ -1284,7 +1284,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                     <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
                       <Bath className="w-5 h-5" style={{ color: primaryColor }} />
                       <div>
-                        <p className="text-xs text-gray-500">Baños</p>
+                        <p className="text-xs text-gray-500">Bathrooms</p>
                         <p className="font-semibold text-gray-900">{selectedProperty.bathrooms}</p>
                       </div>
                     </div>
@@ -1293,7 +1293,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                     <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
                       <Maximize className="w-5 h-5" style={{ color: primaryColor }} />
                       <div>
-                        <p className="text-xs text-gray-500">Área</p>
+                        <p className="text-xs text-gray-500">Area</p>
                         <p className="font-semibold text-gray-900">{selectedProperty.areaSqm} m²</p>
                       </div>
                     </div>
@@ -1302,7 +1302,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                     <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
                       <Globe className="w-5 h-5" style={{ color: primaryColor }} />
                       <div>
-                        <p className="text-xs text-gray-500">Terreno</p>
+                        <p className="text-xs text-gray-500">Lot Size</p>
                         <p className="font-semibold text-gray-900">{selectedProperty.lotSizeSqm} m²</p>
                       </div>
                     </div>
@@ -1311,7 +1311,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                     <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
                       <Calendar className="w-5 h-5" style={{ color: primaryColor }} />
                       <div>
-                        <p className="text-xs text-gray-500">Año Construcción</p>
+                        <p className="text-xs text-gray-500">Year Built</p>
                         <p className="font-semibold text-gray-900">{selectedProperty.yearBuilt}</p>
                       </div>
                     </div>
@@ -1322,7 +1322,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
               {/* Features list from JSON */}
               {selectedProperty.features && selectedProperty.features.length > 0 && (
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Amenidades y Extras</h4>
+                  <h4 className="font-semibold text-gray-900 mb-2">Amenities & Extras</h4>
                   <div className="flex flex-wrap gap-2">
                     {selectedProperty.features.map((feature, i) => (
                       <Badge key={i} variant="secondary" className="text-sm">
@@ -1338,7 +1338,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
 
               {/* Agent contact card */}
               <div className="p-4 bg-gray-50 rounded-xl">
-                <h4 className="font-semibold text-gray-900 mb-3">Contactar Agente</h4>
+                <h4 className="font-semibold text-gray-900 mb-3">Contact Agent</h4>
                 <div className="flex items-center gap-3 mb-3">
                   <div
                     className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold"
@@ -1361,7 +1361,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                       style={{ borderColor: primaryColor, color: primaryColor }}
                     >
                       <Phone className="w-4 h-4" />
-                      Llamar
+                      Call
                     </a>
                   )}
                   {agent.email && (
@@ -1371,7 +1371,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                       style={{ borderColor: primaryColor, color: primaryColor }}
                     >
                       <Mail className="w-4 h-4" />
-                      Correo
+                      Email
                     </a>
                   )}
                   {agent.whatsapp && (
@@ -1390,24 +1390,24 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
 
               {/* Inquiry form in dialog */}
               <div className="p-4 rounded-xl border" style={{ borderColor: `${primaryColor}20` }}>
-                <h4 className="font-semibold text-gray-900 mb-4">¿Interesado en esta propiedad?</h4>
+                <h4 className="font-semibold text-gray-900 mb-4">Interested in this property?</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                   <div>
-                    <Label htmlFor="detail-name" className="text-sm text-gray-600">Nombre *</Label>
+                    <Label htmlFor="detail-name" className="text-sm text-gray-600">Name *</Label>
                     <Input
                       id="detail-name"
-                      placeholder="Tu nombre"
+                      placeholder="Your name"
                       className="mt-1"
                       value={inquiryForm.name}
                       onChange={(e) => setInquiryForm((f) => ({ ...f, name: e.target.value }))}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="detail-email" className="text-sm text-gray-600">Correo *</Label>
+                    <Label htmlFor="detail-email" className="text-sm text-gray-600">Email *</Label>
                     <Input
                       id="detail-email"
                       type="email"
-                      placeholder="tu@correo.com"
+                      placeholder="you@email.com"
                       className="mt-1"
                       value={inquiryForm.email}
                       onChange={(e) => setInquiryForm((f) => ({ ...f, email: e.target.value }))}
@@ -1415,20 +1415,20 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                   </div>
                 </div>
                 <div className="mb-3">
-                  <Label htmlFor="detail-phone" className="text-sm text-gray-600">Teléfono</Label>
+                  <Label htmlFor="detail-phone" className="text-sm text-gray-600">Phone</Label>
                   <Input
                     id="detail-phone"
-                    placeholder="Tu teléfono"
+                    placeholder="Your phone number"
                     className="mt-1"
                     value={inquiryForm.phone}
                     onChange={(e) => setInquiryForm((f) => ({ ...f, phone: e.target.value }))}
                   />
                 </div>
                 <div className="mb-4">
-                  <Label htmlFor="detail-message" className="text-sm text-gray-600">Mensaje</Label>
+                  <Label htmlFor="detail-message" className="text-sm text-gray-600">Message</Label>
                   <Textarea
                     id="detail-message"
-                    placeholder={`Hola, estoy interesado/a en ${selectedProperty.title}...`}
+                    placeholder={`Hello, I am interested in ${selectedProperty.title}...`}
                     className="mt-1"
                     rows={3}
                     value={inquiryForm.message}
@@ -1444,7 +1444,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                     submitInquiry();
                   }}
                 >
-                  {submitting ? 'Enviando...' : 'Enviar Consulta'}
+                  {submitting ? 'Sending...' : 'Send Inquiry'}
                 </Button>
               </div>
             </>
@@ -1457,7 +1457,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold" style={{ color: primaryColor }}>
-              Consultar Propiedad
+              Inquire About Property
             </DialogTitle>
           </DialogHeader>
           {inquiryProperty && (
@@ -1469,41 +1469,41 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                 </p>
               </div>
               <div>
-                <Label htmlFor="inq-name" className="text-sm">Nombre *</Label>
+                <Label htmlFor="inq-name" className="text-sm">Name *</Label>
                 <Input
                   id="inq-name"
-                  placeholder="Tu nombre"
+                  placeholder="Your name"
                   className="mt-1"
                   value={inquiryForm.name}
                   onChange={(e) => setInquiryForm((f) => ({ ...f, name: e.target.value }))}
                 />
               </div>
               <div>
-                <Label htmlFor="inq-email" className="text-sm">Correo *</Label>
+                <Label htmlFor="inq-email" className="text-sm">Email *</Label>
                 <Input
                   id="inq-email"
                   type="email"
-                  placeholder="tu@correo.com"
+                  placeholder="you@email.com"
                   className="mt-1"
                   value={inquiryForm.email}
                   onChange={(e) => setInquiryForm((f) => ({ ...f, email: e.target.value }))}
                 />
               </div>
               <div>
-                <Label htmlFor="inq-phone" className="text-sm">Teléfono</Label>
+                <Label htmlFor="inq-phone" className="text-sm">Phone</Label>
                 <Input
                   id="inq-phone"
-                  placeholder="Tu teléfono"
+                  placeholder="Your phone number"
                   className="mt-1"
                   value={inquiryForm.phone}
                   onChange={(e) => setInquiryForm((f) => ({ ...f, phone: e.target.value }))}
                 />
               </div>
               <div>
-                <Label htmlFor="inq-message" className="text-sm">Mensaje</Label>
+                <Label htmlFor="inq-message" className="text-sm">Message</Label>
                 <Textarea
                   id="inq-message"
-                  placeholder={`Hola, estoy interesado/a en ${inquiryProperty.title}...`}
+                  placeholder={`Hello, I am interested in ${inquiryProperty.title}...`}
                   className="mt-1"
                   rows={3}
                   value={inquiryForm.message}
@@ -1516,7 +1516,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                 disabled={submitting}
                 onClick={submitInquiry}
               >
-                {submitting ? 'Enviando...' : 'Enviar Consulta'}
+                {submitting ? 'Sending...' : 'Send Inquiry'}
               </Button>
             </div>
           )}
@@ -1534,7 +1534,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
             transition={{ duration: 0.5 }}
           >
             <h2 className="text-2xl sm:text-3xl font-bold mb-8" style={{ color: primaryColor }}>
-              Contacto
+              Contact
             </h2>
           </motion.div>
 
@@ -1659,7 +1659,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                 <div className="text-center">
                   <MapPin className="w-8 h-8 mx-auto mb-2" style={{ color: `${primaryColor}40` }} />
                   <p className="text-sm text-gray-400">
-                    {[agent.city, agent.country].filter(Boolean).join(', ') || 'Ubicación'}
+                    {[agent.city, agent.country].filter(Boolean).join(', ') || 'Location'}
                   </p>
                 </div>
               </div>
@@ -1674,7 +1674,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
                   onClick={() => track('whatsapp_click', { elementId: 'contact_whatsapp_cta', elementText: 'WhatsApp CTA' })}
                 >
                   <MessageCircle className="w-6 h-6" />
-                  Escríbenos por WhatsApp
+                  Message us on WhatsApp
                 </a>
               )}
             </motion.div>
@@ -1728,7 +1728,7 @@ export default function PublicPortal({ agentSlug, onBack }: PublicPortalProps) {
           </div>
           <Separator className="my-6 bg-white/20" />
           <p className="text-center text-white/60 text-sm">
-            © {new Date().getFullYear()} {agent.businessName}. Todos los derechos reservados.
+            © {new Date().getFullYear()} {agent.businessName}. All rights reserved.
           </p>
         </div>
       </footer>

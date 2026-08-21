@@ -38,9 +38,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ properties })
   } catch (error) {
-    console.error('Error al listar propiedades:', error)
+    console.error('Error listing properties:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
 
     if (!title?.trim()) {
       return NextResponse.json(
-        { error: 'El título es obligatorio' },
+        { error: 'Title is required' },
         { status: 400 },
       )
     }
@@ -125,9 +125,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ property }, { status: 201 })
   } catch (error) {
-    console.error('Error al crear propiedad:', error)
+    console.error('Error creating property:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }

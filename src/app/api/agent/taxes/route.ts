@@ -22,9 +22,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ taxes })
   } catch (error) {
-    console.error('Error al listar obligaciones fiscales:', error)
+    console.error('Error listing tax obligations:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }
@@ -42,14 +42,14 @@ export async function POST(request: NextRequest) {
 
     if (!taxType?.trim() || !description?.trim()) {
       return NextResponse.json(
-        { error: 'El tipo y la descripción son obligatorios' },
+        { error: 'Tax type and description are required' },
         { status: 400 },
       )
     }
 
     if (amount === undefined || amount === null) {
       return NextResponse.json(
-        { error: 'El monto es obligatorio' },
+        { error: 'Amount is required' },
         { status: 400 },
       )
     }
@@ -69,9 +69,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ tax }, { status: 201 })
   } catch (error) {
-    console.error('Error al crear obligación fiscal:', error)
+    console.error('Error creating tax obligation:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }
@@ -89,7 +89,7 @@ export async function PATCH(request: NextRequest) {
 
     if (!id) {
       return NextResponse.json(
-        { error: 'El ID es obligatorio' },
+        { error: 'ID is required' },
         { status: 400 },
       )
     }
@@ -99,7 +99,7 @@ export async function PATCH(request: NextRequest) {
     })
     if (!existing) {
       return NextResponse.json(
-        { error: 'Obligación fiscal no encontrada' },
+        { error: 'Tax obligation not found' },
         { status: 404 },
       )
     }
@@ -119,9 +119,9 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ tax })
   } catch (error) {
-    console.error('Error al actualizar obligación fiscal:', error)
+    console.error('Error updating tax obligation:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 },
     )
   }

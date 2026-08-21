@@ -7,17 +7,17 @@ import { Prisma } from '@prisma/client';
 async function requirePlatformOwner(request: NextRequest) {
   const token = request.cookies.get('propos-token')?.value;
   if (!token) {
-    return { error: NextResponse.json({ error: 'No autenticado' }, { status: 401 }), user: null };
+    return { error: NextResponse.json({ error: 'Not authenticated' }, { status: 401 }), user: null };
   }
 
   const payload = verifyToken(token);
   if (!payload) {
-    return { error: NextResponse.json({ error: 'Token inválido o expirado' }, { status: 401 }), user: null };
+    return { error: NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 }), user: null };
   }
 
   const { role } = payload as { role: string };
   if (role !== 'platform_owner') {
-    return { error: NextResponse.json({ error: 'Acceso denegado. Solo el propietario de la plataforma puede acceder.' }, { status: 403 }), user: null };
+    return { error: NextResponse.json({ error: 'Access denied. Only the platform owner can access this resource.' }, { status: 403 }), user: null };
   }
 
   return { error: null, user: payload };
@@ -48,28 +48,28 @@ export async function GET(request: NextRequest) {
 
         return {
           id: plan.id,
-          nombre: plan.name,
+          name: plan.name,
           slug: plan.slug,
-          precio: plan.price,
-          moneda: plan.currency,
-          intervalo: plan.interval,
-          maxPropiedades: plan.maxProperties,
-          maxClientes: plan.maxClients,
-          caracteristicas: JSON.parse(plan.features),
-          activo: plan.isActive,
-          totalSuscripciones: plan._count.subscriptions,
-          suscriptoresActivos: activeSubscribers,
-          creadoEn: plan.createdAt,
-          actualizadoEn: plan.updatedAt,
+          price: plan.price,
+          currency: plan.currency,
+          interval: plan.interval,
+          maxProperties: plan.maxProperties,
+          maxClients: plan.maxClients,
+          features: JSON.parse(plan.features),
+          isActive: plan.isActive,
+          totalSubscriptions: plan._count.subscriptions,
+          activeSubscribers: activeSubscribers,
+          createdAt: plan.createdAt,
+          updatedAt: plan.updatedAt,
         };
       })
     );
 
-    return NextResponse.json({ planes: plansWithCounts });
+    return NextResponse.json({ plans: plansWithCounts });
   } catch (error) {
-    console.error('Error al listar planes:', error);
+    console.error('Error listing plans:', error);
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     if (!name || !slug) {
       return NextResponse.json(
-        { error: 'Los campos "nombre" y "slug" son obligatorios' },
+        { error: 'The fields "name" and "slug" are required' },
         { status: 400 }
       );
     }
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
     const existing = await db.plan.findUnique({ where: { slug } });
     if (existing) {
       return NextResponse.json(
-        { error: 'Ya existe un plan con ese slug' },
+        { error: 'A plan with this slug already exists' },
         { status: 409 }
       );
     }
@@ -116,13 +116,13 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(
-      { mensaje: 'Plan creado correctamente', plan },
+      { message: 'Plan created successfully', plan },
       { status: 201 }
     );
   } catch (error) {
-    console.error('Error al crear plan:', error);
+    console.error('Error creating plan:', error);
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
